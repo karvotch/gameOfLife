@@ -1,0 +1,95 @@
+<canvas id="gc" width="400" height="400"></canvas>
+<script>
+    window.onload = function() {
+        canv = document.getElementById("gc");
+        ctx = canv.getContext("2d");
+        document.addEventListener("keydown", keyPush);
+        // 1000 determines speed of snake.
+            // setInterval calls the program, in this case 'game', at a millisecond interval.
+        setInterval(game, 9000 / 15);
+    }
+        // Beginning point of snake, in the middle of the map.
+    px = py = 10;
+        // gs and tc are the maximum vertical and horizontal borders of the snake game.
+    gs = tc = 20;
+        // Beginning point for snack.
+    ax = ay = 15;
+        // Used as the direction the snake is going.
+            // x is x-axis, and y is y-axis.
+    xv = yv = 0;
+        // Array of snake head position history used to position rest of snake body.
+            // snake head position older than tail length is deleted.
+    trail = [];
+    tail = 5;
+
+    function game() {
+            // Figure out direction snake is going.
+        px += xv;
+        py += yv;
+            // Move the snake to the other side of the map if it crosses the border.
+        if (px < 0) {
+            px = tc - 1;
+        }
+        if (px > tc - 1) {
+            px = 0;
+        }
+        if (py < 0) {
+            py = tc - 1;
+        }
+        if (py > tc - 1) {
+            py = 0;
+        }
+            // Paint the background black.
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canv.width, canv.height);
+            // Paint the snake lime green.
+        ctx.fillStyle = "lime";
+        for (var i = 0; i < trail.length; i++) {
+            ctx.fillRect(trail[i].x * gs, trail[i].y * gs, gs - 2, gs - 2);
+            if (trail[i].x == px && trail[i].y == py) {
+                tail = 5;
+            }
+        }
+            // Push the location of the next snake head position.
+                // First loop pushes the current location, middle of the map, onto trail array.
+        trail.push({
+            x: px,
+            y: py
+        });
+            // If trail length exceeds tail length then delete the earliest location of head.
+        while (trail.length > tail) {
+            trail.shift();
+        }
+            // If snack is obtained increase tail length.
+        if (ax == px && ay == py) {
+            tail++;
+            ax = Math.floor(Math.random() * tc);
+            ay = Math.floor(Math.random() * tc);
+        }
+            // Paint location of snack.
+        ctx.fillStyle = "red";
+        ctx.fillRect(ax * gs, ay * gs, gs - 2, gs - 2);
+    }
+
+        // Listen for arrow key presses.
+    function keyPush(evt) {
+        switch (evt.keyCode) {
+            case 37:
+                xv = -1;
+                yv = 0;
+                break;
+            case 38:
+                xv = 0;
+                yv = -1;
+                break;
+            case 39:
+                xv = 1;
+                yv = 0;
+                break;
+            case 40:
+                xv = 0;
+                yv = 1;
+                break;
+        }
+    }
+</script>

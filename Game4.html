@@ -1,0 +1,466 @@
+<head>
+  <meta charset="UTF-8">                                                                                
+  <title>Game of Life</title>                                               
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<!--<canvas id="mainCanvas" width="2000" height="900"></canvas>-->
+<!--<canvas id="mainCanvas" width=document.body.clientWidth height=document.body.clientHeight></canvas>-->
+<!--<canvas id="mainCanvas" width=window.innerWidth height=window.innerHeight></canvas>-->
+<!--<canvas id="mainCanvas" width=document.documentElement.clientWidth height=documentElement.clientHeight></canvas>-->
+<canvas id="mainCanvas"></canvas>
+<script>
+    window.onload = function() {
+        //canv = document.getElementById("mainCanvas");
+        //canv.width = window.innerWidth;
+        //canv.height = window.innerHeight;
+        ctx = canv.getContext("2d");
+
+        //var sandboxWidth = canv.width / cellSize;
+        //var sandboxHeight = canv.height / cellSize;
+        
+        document.addEventListener("keydown", keyPush);
+        document.addEventListener("wheel", mouseWheel, false);
+        document.addEventListener("mousedown", mouseDown, false);
+        document.addEventListener("mouseup", mouseUp, false);
+        document.addEventListener("mousemove", mouseDrag);
+        document.addEventListener("click", mouseClick, false);
+        // 1000 determines speed of snake.
+        //setInterval(game, gameSpeed / 15);
+        game();
+    }
+
+
+    isDragging = false;
+    cursorCoordX = 0;
+    cursorCoordY = 0;
+    //cursorMoveX = 0;
+    //cursorMoveY = 0;
+    dragDeltaX = 0;
+    dragDeltaY = 0;
+
+    gameSpeed = 1000;
+    cellSize = 10;
+    cellBorder = .2;
+    canv = document.getElementById("mainCanvas");
+
+    canv.width = window.innerWidth;
+    canv.height = window.innerHeight;
+
+    sandboxWidth = 400;
+    sandboxHeight = 400;
+
+    //gameViewOriginX = ((sandboxWidth / 2) * cellSize) - (canv.width / 2);
+    //gameViewOriginY = ((sandboxHeight / 2) * cellSize) - (canv.height / 2);
+
+    gameViewOriginX = 0;
+    gameViewOriginY = 0;
+
+    //console.log(gameViewOriginX + ", " + gameViewOriginY);
+
+    //sandboxViewWidth = Math.floor((canv.width * 2) / cellSize);
+    //sandboxViewHeight = Math.floor((canv.height * 2) / cellSize);
+
+    //console.log(sandboxViewHeight + " " + sandboxViewWidth);
+
+    bg = st = 20;
+    count = 0;
+
+
+    blockStatus = [];
+    for(var i = 0; i < sandboxWidth; i++) {
+        blockStatus.push(new Array(sandboxHeight));
+        for(var j = 0; j < sandboxWidth; j++) {
+            blockStatus[i][j] = false;
+        }
+    }
+
+    nextBlockStatus = [];
+    for(var i = 0; i < sandboxWidth; i++) {
+        nextBlockStatus.push(new Array(sandboxHeight));
+        for(var j = 0; j < sandboxWidth; j++) {
+            nextBlockStatus[i][j] = false;
+        }
+    }
+
+    function game() {
+        count += 1;
+
+        cpyNextToCurrCellArray();
+        setNextBlockStatus();
+
+        
+
+        if(count == 1) {
+            nextBlockStatus[bg][st] =true;
+            nextBlockStatus[21][st] =true;
+            nextBlockStatus[22][st] =true;
+            nextBlockStatus[22][19] =true;
+            nextBlockStatus[21][18] =true;
+
+            nextBlockStatus[st][0] =true;
+            nextBlockStatus[21][0] =true;
+            nextBlockStatus[st][1] =true;
+            nextBlockStatus[21][1] =true;
+
+            nextBlockStatus[0][st] =true;
+            nextBlockStatus[0][21] =true;
+            nextBlockStatus[1][st] =true;
+            nextBlockStatus[1][21] =true;
+
+            nextBlockStatus[390][390] =true;
+            nextBlockStatus[391][390] =true;
+            nextBlockStatus[392][390] =true;
+            nextBlockStatus[392][389] =true;
+            nextBlockStatus[391][388] =true;
+
+            nextBlockStatus[10][390] =true;
+            nextBlockStatus[11][390] =true;
+            nextBlockStatus[12][390] =true;
+            nextBlockStatus[10][389] =true;
+            nextBlockStatus[11][388] =true;
+
+            nextBlockStatus[390][10] =true;
+            nextBlockStatus[391][10] =true;
+            nextBlockStatus[392][10] =true;
+            nextBlockStatus[392][11] =true;
+            nextBlockStatus[391][12] =true;
+
+            nextBlockStatus[10][10] =true;
+            nextBlockStatus[11][10] =true;
+            nextBlockStatus[12][10] =true;
+            nextBlockStatus[10][11] =true;
+            nextBlockStatus[11][12] =true;
+        }
+        
+        draw();
+
+        ctx.fillStyle = "gray";
+        ctx.fillRect(0, 0, canv.width, canv.height);
+
+        ctx.fillStyle = "white";
+        for (var i = 0; i < sandboxWidth; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                    ctx.fillRect(i * cellSize - gameViewOriginX, j * cellSize - gameViewOriginY, cellSize, cellBorder);
+                    ctx.fillRect(i * cellSize - gameViewOriginX, j * cellSize - gameViewOriginY, cellBorder, cellSize);
+
+                    //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, cellBorder, -(cellSize));
+                    //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, -(cellSize), -cellBorder);
+            }
+        }
+
+        ctx.fillStyle = "lime";
+        for (var i = 0; i < sandboxWidth; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                if(nextBlockStatus[i][j] == true) {
+                    ctx.fillRect((i * cellSize + 2) - gameViewOriginX, (j * cellSize + 2) - gameViewOriginY, cellSize - 2, cellSize - 2);
+                }
+            }
+        }
+
+        setTimeout(game, gameSpeed / 15);
+    }
+
+    
+    function setNextBlockStatus() {
+        for (var i = 0; i < sandboxWidth; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                surrCellCount = 0;
+
+                if(blockStatus[i][j] == 1) {
+
+                    let xLessOne = i - 1;
+                    let xPlusOne = i + 1;
+                    let yLessOne = j - 1;
+                    let yPlusOne = j + 1;
+
+                    let topL = [xLessOne, yLessOne];
+                    let topt = [i, yLessOne];
+                    let topR = [xPlusOne, yLessOne];
+                    let left = [xLessOne, j];
+                    let right = [xPlusOne, j];
+                    let botL = [xLessOne, yPlusOne];
+                    let bot = [i, yPlusOne];
+                    let botR = [xPlusOne, yPlusOne];
+
+
+                    if(topL[0] >= 0 && topL[1] >= 0) {
+                        if(blockStatus[topL[0]][topL[1]] == false) {
+                            checkEmptyCellStatus(topL[0], topL[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+                    if(topt[1] >= 0) {
+                        if(blockStatus[topt[0]][topt[1]] == false) {
+                            checkEmptyCellStatus(topt[0], topt[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+                    if(topR[0] < sandboxWidth && topR[1] >= 0) {
+                        if(blockStatus[topR[0]][topR[1]] == false) {
+                            checkEmptyCellStatus(topR[0], topR[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+                    if(left[0] >= 0) {
+                        if(blockStatus[left[0]][left[1]] == false) {
+                            checkEmptyCellStatus(left[0], left[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+                    if(right[0] < sandboxWidth) {
+                        if(blockStatus[right[0]][right[1]] == false) {
+                            checkEmptyCellStatus(right[0], right[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+                    if(botL[0] >= 0 && botL[1] < sandboxHeight) {
+                        if(blockStatus[botL[0]][botL[1]] == false) {
+                            checkEmptyCellStatus(botL[0], botL[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+                    if(bot[1] < sandboxHeight) {
+                        if(blockStatus[bot[0]][bot[1]] == false) {
+                            checkEmptyCellStatus(bot[0], bot[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+                    if(botR[0] < sandboxWidth && botR[1] < sandboxHeight) {
+                        if(blockStatus[botR[0]][botR[1]] == false) {
+                            checkEmptyCellStatus(botR[0], botR[1]);
+                        } else {
+                            surrCellCount +=1
+                        }
+                    }
+
+
+
+
+                    if(surrCellCount == 0 || surrCellCount == 1 || surrCellCount >= 4) {
+                        nextBlockStatus[i][j] = false;
+                    } else {
+                        nextBlockStatus[i][j] = true;
+                    }
+                }
+            }
+        }
+    }
+
+
+    function checkEmptyCellStatus(xa, ya) {
+
+        let topL = [xa-1, ya-1];
+        let topt = [xa, ya-1];
+        let topR = [xa+1, ya-1];
+        let left = [xa-1, ya];
+        let right = [xa+1, ya];
+        let botL = [xa-1, ya+1];
+        let bot = [xa, ya+1];
+        let botR = [xa+1, ya+1];
+
+        surrCellCount2 = 0;
+        
+
+        if(topL[0] >= 0 && topL[1] >= 0) {
+            if(blockStatus[topL[0]][topL[1]] == true) {
+                surrCellCount2 +=1
+            }
+        }
+
+        if(topt[1] >= 0) {
+            if(blockStatus[topt[0]][topt[1]] ==true) {
+                surrCellCount2 +=1
+            }
+        }
+
+        if(topR[0] < sandboxWidth && topR[1] >= 0) {
+            if(blockStatus[topR[0]][topR[1]] ==true) {
+                surrCellCount2 +=1
+            }
+        }
+
+        if(left[0] >= 0) {
+            if(blockStatus[left[0]][left[1]] ==true) {
+                surrCellCount2 +=1
+            }
+        }
+
+        if(right[0] < sandboxWidth) {
+            if(blockStatus[right[0]][right[1]] ==true) {
+                surrCellCount2 +=1
+            }
+        }
+
+        if(botL[0] >= 0 && botL[1] < sandboxHeight) {
+            if(blockStatus[botL[0]][botL[1]] ==true) {
+                surrCellCount2 +=1
+            }
+        }
+
+        if(bot[1] < sandboxHeight) {
+            if(blockStatus[bot[0]][bot[1]] ==true) {
+                surrCellCount2 +=1
+            }
+        }
+
+        if(botR[0] < sandboxWidth && botR[1] < sandboxHeight) {
+            if(blockStatus[botR[0]][botR[1]] ==true) {
+                surrCellCount2 +=1
+            }
+        }
+
+
+        if(surrCellCount2 == 3) {
+            nextBlockStatus[xa][ya] = true;
+        }
+    }
+
+
+    function cpyNextToCurrCellArray() {
+        for (var i = 0; i < sandboxWidth; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                blockStatus[i][j] = nextBlockStatus[i][j];
+            }
+        }
+    }
+
+    function keyPush(evt) {
+        switch (evt.keyCode) {
+            case 37:
+                xv = -1;
+                yv = 0;
+                break;
+            case 38:
+                xv = 0;
+                yv = -1;
+                break;
+            case 39:
+                xv = 1;
+                yv = 0;
+                break;
+            case 40:
+                xv = 0;
+                yv = 1;
+                break;
+            case 32:
+                if(gameSpeed == 1000) {
+                    gameSpeed = 4000;
+                } else if(gameSpeed == 4000) {
+                    gameSpeed = 9000;
+                } else if(gameSpeed == 9000) {
+                    gameSpeed = 15000;
+                } else {
+                    gameSpeed = 1000;
+                }
+                break;
+        }
+    }
+
+    function mouseClick(e) {
+        var xPosition = e.clientX;
+        var yPosition = e.clientY;
+        //console.log(xPosition + " " + yPosition);
+        var xCellPos = Math.floor(xPosition / 10);
+        var yCellPos = Math.floor(yPosition / 10);
+        
+        if(nextBlockStatus[xCellPos][yCellPos] == true) {
+            nextBlockStatus[xCellPos][yCellPos] = false;
+        } else {
+            nextBlockStatus[xCellPos][yCellPos] = true;
+        }
+    }
+
+    function mouseWheel(e) {
+        //console.log(e.deltaY);
+        deltaY = e.deltaY / 2;
+        //console.log(canv.width + ", " + canv.height);
+        //console.log((cellSize - deltaY) * sandboxWidth);
+        if(cellSize - deltaY > 0 && 
+                cellBorder - deltaY / (cellSize / cellBorder) > 0 && 
+                (cellSize - deltaY) * sandboxWidth >= canv.width && 
+                (cellSize - deltaY) * sandboxHeight >= canv.height) {
+            setGameViewOrigin(deltaY);
+            cellSizeTemp = cellSize
+            cellSize -= deltaY;
+            cellBorder -= deltaY / (cellSizeTemp / cellBorder );
+            //setGameViewOrigin(deltaY);
+        }
+        //console.log(cellSize);
+        //console.log(cellBorder);
+        //console.log(cellSize / cellBorder);
+    }
+
+    function setGameViewOrigin(zoomAdjust) {
+        temp1 = gameViewOriginX / cellSize;
+        temp2 = gameViewOriginY / cellSize;
+        dragDeltaX = temp1 * zoomAdjust;
+        dragDeltaY = temp2 * zoomAdjust;
+        if(gameViewOriginX - dragDeltaX > 0 || gameViewOriginX - dragDeltaX < (sandboxWidth * cellSize) - canv.width) {
+            gameViewOriginX -= dragDeltaX;
+        }
+        if(gameViewOriginY - dragDeltaY > 0 || gameViewOriginY - dragDeltaY < (sandboxHeight * cellSize) - canv.height) {
+            gameViewOriginY -= dragDeltaY;
+        }
+
+        console.log(gameViewOriginX + ", " + gameViewOriginY);
+    }
+
+    function mouseDown(e) {
+        isDragging = true;
+        cursorCoordX = e.clientX;
+        cursorCoordY = e.clientY;
+        //console.log("hello");
+    }
+
+    function mouseUp(e) {
+        isDragging = false;
+    }
+
+    function mouseDrag(e) {
+        if(isDragging == true) {
+            cursorMoveX = e.clientX;
+            cursorMoveY = e.clientY;
+            dragDeltaX = cursorCoordX - cursorMoveX ;
+            dragDeltaY = cursorCoordY - cursorMoveY ;
+            cursorCoordX = cursorMoveX;
+            cursorCoordY = cursorMoveY;
+            //console.log(dragDeltaX + ", " + dragDeltaY);
+
+            if(gameViewOriginX + dragDeltaX > 0 && gameViewOriginX + dragDeltaX < (sandboxWidth * cellSize) - canv.width) {
+                gameViewOriginX += dragDeltaX;
+            }
+            if(gameViewOriginY + dragDeltaY > 0 && gameViewOriginY + dragDeltaY < (sandboxHeight * cellSize) - canv.height) {
+                gameViewOriginY += dragDeltaY;
+            }
+            
+            //console.log(gameViewOriginX + ", " + gameViewOriginY);
+        }
+    }
+
+
+    function draw() {
+        //ctx = canv.getContext("2d");
+        //ctx.canvas.width  = window.innerWidth;
+        //ctx.canvas.height = window.innerHeight;
+        canv.width  = window.innerWidth;
+        canv.height = window.innerHeight;
+
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canv.width, canv.height);
+    }
+
+</script>

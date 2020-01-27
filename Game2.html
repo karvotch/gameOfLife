@@ -1,0 +1,317 @@
+<!--<canvas id="mainCanvas" width="2000" height="900"></canvas>-->
+<!--<canvas id="mainCanvas" width=document.body.clientWidth height=document.body.clientHeight></canvas>-->
+<!--<canvas id="mainCanvas" width=window.innerWidth height=window.innerHeight></canvas>-->
+<canvas id="mainCanvas"></canvas>
+<script>
+    window.onload = function() {
+        //canv = document.getElementById("mainCanvas");
+        //canv.width = window.innerWidth;
+        //canv.height = window.innerHeight;
+        ctx = canv.getContext("2d");
+
+        //var sandboxWidth = canv.width / cellSize;
+        //var sandboxHeight = canv.height / cellSize;
+        
+        document.addEventListener("keydown", keyPush);
+        // 1000 determines speed of snake.
+        setInterval(game, 4000 / 15);
+    }
+    cellSize = 10;
+    //sandboxHeight = 40;
+    canv = document.getElementById("mainCanvas");
+    canv.width = document.documentElement.clientWidth;
+    canv.height = document.documentElement.clientHeight;
+    sandboxWidth = canv.width / cellSize;
+    sandboxHeight = canv.height / cellSize;
+    //console.log(sandboxHeight);
+    bg = st = 20;
+    count = 0;
+    cellLocation = [];
+    for(var i = 0; i < sandboxHeight; i++) {
+        cellLocation.push(new Array(sandboxHeight));
+        for(var j = 0; j < sandboxHeight; j++) {
+            cellLocation[i][j] = 0;
+        }
+    }
+
+    nextCellLocation = [];
+    for(var i = 0; i < sandboxHeight; i++) {
+        nextCellLocation.push(new Array(sandboxHeight));
+        for(var j = 0; j < sandboxHeight; j++) {
+            nextCellLocation[i][j] = 0;
+        }
+    }
+
+    function game() {
+        //alert(cellLocation[bg][st]);
+        count += 1;
+
+        cpyNextToCurrCellArray();
+        setNextCellLocation();
+
+        
+
+        if(count == 1) {
+            nextCellLocation[bg][st] = 1;
+            nextCellLocation[21][st] = 1;
+            nextCellLocation[22][st] = 1;
+            nextCellLocation[22][19] = 1;
+            nextCellLocation[21][18] = 1;
+
+            cellLocation[bg][st] = 1;
+            cellLocation[21][st] = 1;
+            cellLocation[22][st] = 1;
+            cellLocation[22][19] = 1;
+            cellLocation[21][18] = 1;
+        }
+        
+
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canv.width, canv.height);
+
+        ctx.fillStyle = "lime";
+        for (var i = 0; i < sandboxHeight; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                //alert(cellLocation[i][j]);
+                if(nextCellLocation[i][j] == 1) {
+                    //alert(cellLocation[i][j]);
+                    ctx.fillRect(i * cellSize, j * cellSize, cellSize - 2, cellSize - 2);
+                }
+            }
+        }
+
+    }
+
+    
+    function setNextCellLocation() {
+        for (var i = 0; i < sandboxHeight; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                surrCellCount = 0;
+
+                if(cellLocation[i][j] == 1) {
+                    let topL = [i-1, j-1];
+                    let topt = [i, j-1];
+                    let topR = [i+1, j-1];
+                    let left = [i-1, j];
+                    let right = [i+1, j];
+                    let botL = [i-1, j+1];
+                    let bot = [i, j+1];
+                    let botR = [i+1, j+1];
+
+                    if(cellLocation[topL[0]][topL[1]] == 0) {
+                        checkEmptyCellStatus(topL[0], topL[1]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(topL[0], topL[1]);
+                    }
+
+                    if(cellLocation[topt[0]][topt[1]] == 0) {
+                        checkEmptyCellStatus(topt[0], topt[1]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(topt[0], topt[1]);
+                    }
+
+                    if(cellLocation[topR[0]][topR[1]] == 0) {
+                        checkEmptyCellStatus(topR[0], topR[1]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(topR[0], topR[1]);
+                    }
+
+                    if(cellLocation[left[0]][left[1]] == 0) {
+                        checkEmptyCellStatus(left[0], left[1]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(left[0], left[1]);
+                    }
+
+                    if(cellLocation[right[0]][right[1]] == 0) {
+                        checkEmptyCellStatus(right[0], right[1]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(right[0], right[1]);
+                    }
+
+                    if(cellLocation[botL[0]][botL[1]] == 0) {
+                        checkEmptyCellStatus(botL[0], botL[1]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(botL[0], botL[1]);
+                    }
+
+                    if(cellLocation[bot[0]][bot[1]] == 0) {
+                        checkEmptyCellStatus(bot[0], bot[1]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(bot[0], bot[1]);
+                    }
+
+                    if(cellLocation[botR[0]][botR[1]] == 0) {
+                        checkEmptyCellStatus(botR[0], botR[1]);
+                        //console.log(botR[0] + ' ' + botR[1]);
+                        //console.log(i + ' ' + j);
+                        //alert(nextCellLocation[21][21]);
+                    } else {
+                        surrCellCount +=1
+                        //checkFullCellStatus(botR[0], botR[1]);
+                    }
+
+                    if(i == 20 && j == 20) {
+                        //alert(surrCellCount);
+                    }
+
+                    //console.log("i = " + i);
+                    //console.log('j = ' + j);
+
+
+                    if(surrCellCount == 0 || surrCellCount == 1 || surrCellCount == 4) {
+                        nextCellLocation[i][j] = 0;
+                    } else {
+                        nextCellLocation[i][j] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+
+    function checkEmptyCellStatus(xa, ya) {
+
+        let topL = [xa-1, ya-1];
+        let topt = [xa, ya-1];
+        let topR = [xa+1, ya-1];
+        let left = [xa-1, ya];
+        let right = [xa+1, ya];
+        let botL = [xa-1, ya+1];
+        let bot = [xa, ya+1];
+        let botR = [xa+1, ya+1];
+
+        surrCellCount2 = 0;
+
+        if(cellLocation[topL[0]][topL[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+        if(cellLocation[topt[0]][topt[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+        if(cellLocation[topR[0]][topR[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+        if(cellLocation[left[0]][left[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+        if(cellLocation[right[0]][right[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+        if(cellLocation[botL[0]][botL[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+        if(cellLocation[bot[0]][bot[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+        if(cellLocation[botR[0]][botR[1]] == 1) {
+            surrCellCount2 +=1
+        }
+
+
+        if(surrCellCount2 == 3) {
+            nextCellLocation[xa][ya] = 1;
+        }
+    }
+
+    function checkFullCellStatus(xa, ya) {
+
+        let topL = [xa-1, ya-1];
+        let topt = [xa, ya-1];
+        let topR = [xa+1, ya-1];
+        let left = [xa-1, ya];
+        let right = [xa+1, ya];
+        let botL = [xa-1, ya+1];
+        let bot = [xa, ya+1];
+        let botR = [xa+1, ya+1];
+
+        surrCellCount3 = 0;
+
+        if(cellLocation[topL[0]][topL[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+        if(cellLocation[topt[0]][topt[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+        if(cellLocation[topR[0]][topR[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+        if(cellLocation[left[0]][left[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+        if(cellLocation[right[0]][right[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+        if(cellLocation[botL[0]][botL[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+        if(cellLocation[bot[0]][bot[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+        if(cellLocation[botR[0]][botR[1]] == 1) {
+            surrCellCount3 +=1
+        }
+
+
+        if(surrCellCount3 == 3) {
+            nextCellLocation[xa][ya] = 1;
+        }
+    }
+
+    function clearCurrCellArray() {
+        for (var i = 0; i < sandboxHeight; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                cellLocation[i][j] = 0;
+            }
+        }
+    }
+
+    function cpyNextToCurrCellArray() {
+        for (var i = 0; i < sandboxHeight; i++) {
+            for(var j = 0; j < sandboxHeight; j++) {
+                cellLocation[i][j] = nextCellLocation[i][j];
+            }
+        }
+    }
+
+    function keyPush(evt) {
+        switch (evt.keyCode) {
+            case 37:
+                xv = -1;
+                yv = 0;
+                break;
+            case 38:
+                xv = 0;
+                yv = -1;
+                break;
+            case 39:
+                xv = 1;
+                yv = 0;
+                break;
+            case 40:
+                xv = 0;
+                yv = 1;
+                break;
+        }
+    }
+</script>
