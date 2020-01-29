@@ -30,6 +30,9 @@
     }
 
 
+    deltaTime = 0;
+    lastFrame = 0;
+
     pauseGame = false;
     isDragging = false;
     isMouseDown = false;
@@ -95,16 +98,19 @@
     function game() {
         count += 1;
         
-        if(count == 1) {
-            //setGameViewOriginCell();
-            //setGameViewCell();
-        }
 
-        if(!pauseGame) {
-            //cpyNextToCurrBlockStatusArray();
-            clearBlockStatusArray();
-            cpyCellToBlockStatusArray();
-            setNextBlockStatus();
+        let currentFrame = Date.now();
+        deltaTime += currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        //console.log(currentFrame + " " + deltaTime + " " + lastFrame);
+        if(deltaTime >= 100) {
+            deltaTime = 0;
+            if(!pauseGame) {
+                //cpyNextToCurrBlockStatusArray();
+                clearBlockStatusArray();
+                cpyCellToBlockStatusArray();
+                setNextBlockStatus();
+            }
         }
 
 
@@ -157,20 +163,30 @@
         ctx.fillStyle = "gray";
         ctx.fillRect(0, 0, canv.width, canv.height);
 
+
         ctx.fillStyle = "black";
 
         //console.log(gameViewOriginX + " " + gameViewOriginY);
         //console.log(gameViewOriginCellX + ", " + gameViewOriginCellY);
             // TODO: There might be problems with this.
-        for (var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
-            for(var j = gameViewOriginCellY; j < gameViewOriginCellY + gameViewCellWidth + 2; j++) {
-                ctx.fillRect((i * cellSize) - gameViewOriginX, (j * cellSize) - gameViewOriginY, cellSize, cellBorder);
-                ctx.fillRect((i * cellSize) - gameViewOriginX, (j * cellSize) - gameViewOriginY, cellBorder, cellSize);
+        //for (var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
+        //    for(var j = gameViewOriginCellY; j < gameViewOriginCellY + gameViewCellWidth + 2; j++) {
+        //        ctx.fillRect((i * cellSize) - gameViewOriginX, (j * cellSize) - gameViewOriginY, cellSize, cellBorder);
+        //        ctx.fillRect((i * cellSize) - gameViewOriginX, (j * cellSize) - gameViewOriginY, cellBorder, cellSize);
 
-                //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, cellBorder, -(cellSize));
-                //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, -(cellSize), -cellBorder);
-            }
+        //        //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, cellBorder, -(cellSize));
+        //        //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, -(cellSize), -cellBorder);
+        //    }
+        //}
+
+        for (var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
+            ctx.fillRect((i * cellSize) - gameViewOriginX, 0, cellBorder, cellSize * (gameViewCellHeight + 1));
         }
+
+        for(var j = gameViewOriginCellY; j < gameViewOriginCellY + gameViewCellHeight + 2; j++) {
+            ctx.fillRect(0, (j * cellSize) - gameViewOriginY, cellSize * (gameViewCellWidth + 1), cellBorder);
+        }
+
 
         //if(gameViewOriginCellX == 0 || 
         //        gameViewOriginCellY = 0 || 
@@ -185,8 +201,8 @@
             ctx.fillRect((cellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (cellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
         }
 
-        setTimeout(game, gameSpeed / 15);
-        //game();
+        //setTimeout(game, gameSpeed / 15);
+        window.requestAnimationFrame(game);
     }
 
     
@@ -390,23 +406,6 @@
         }
     }
 
-    function mouseClick(e) {
-        if(!isDragging) {
-            var xPosition = e.clientX;
-            var yPosition = e.clientY;
-            //console.log(xPosition + " " + yPosition);
-            var xCellPos = Math.floor((xPosition + gameViewOriginX) / cellSize);
-            var yCellPos = Math.floor((yPosition + gameViewOriginY) / cellSize);
-            
-            if(blockStatus[xCellPos][yCellPos] == true) {
-                //blockStatus[xCellPos][yCellPos] = false;
-            } else {
-                //blockStatus[xCellPos][yCellPos] = true;
-                cellsLocation.push([xCellPos, yCellPos]);
-            }
-        }
-    }
-
     function mouseWheel(e) {
         //console.log(e.deltaY);
         deltaY = e.deltaY / 2;
@@ -460,11 +459,10 @@
         //}
 
 
-        console.log(gameViewOriginX + ", " + gameViewOriginY);
-        console.log(dragDeltaX);
-        //console.log((sandboxWidth * cellSize) - canv.width)
-        console.log((sandboxWidth * (cellSize - zoomAdjust)) - canv.width)
-        console.log((sandboxHeight * (cellSize - zoomAdjust)) - canv.height)
+        //console.log(gameViewOriginX + ", " + gameViewOriginY);
+        //console.log(dragDeltaX);
+        //console.log((sandboxWidth * (cellSize - zoomAdjust)) - canv.width)
+        //console.log((sandboxHeight * (cellSize - zoomAdjust)) - canv.height)
         //console.log(canv.width + " " + canv.height);
     }
 
@@ -486,19 +484,26 @@
     }
 
     function mouseDown(e) {
-        isDragging = false;
-        isMouseDown = true;
+        didDrag = false;
         cursorCoordX = e.clientX;
         cursorCoordY = e.clientY;
+        isDragTimer = setTimeout(isDrag, 150);
+    }
+
+    function isDrag() {
+        isDragging = true;
     }
 
     function mouseUp(e) {
-        isMouseDown = false;
+        //isMouseDown = false;
+        clearTimeout(isDragTimer);
+        isDragging = false;
     }
 
     function mouseDrag(e) {
-        if(isMouseDown == true) {
-            isDragging = true;
+        //if(isMouseDown == true) {
+        if(isDragging == true) {
+            didDrag = true;
             cursorMoveX = e.clientX;
             cursorMoveY = e.clientY;
             dragDeltaX = cursorCoordX - cursorMoveX ;
@@ -517,6 +522,23 @@
             setGameViewOriginCell();
             
             //console.log(gameViewOriginX + ", " + gameViewOriginY);
+        }
+    }
+
+    function mouseClick(e) {
+        if(!didDrag) {
+            var xPosition = e.clientX;
+            var yPosition = e.clientY;
+            //console.log(xPosition + " " + yPosition);
+            var xCellPos = Math.floor((xPosition + gameViewOriginX) / cellSize);
+            var yCellPos = Math.floor((yPosition + gameViewOriginY) / cellSize);
+            
+            if(blockStatus[xCellPos][yCellPos] == true) {
+                //blockStatus[xCellPos][yCellPos] = false;
+            } else {
+                //blockStatus[xCellPos][yCellPos] = true;
+                cellsLocation.push([xCellPos, yCellPos]);
+            }
         }
     }
 

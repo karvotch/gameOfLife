@@ -38,7 +38,7 @@
     dragDeltaX = 0;
     dragDeltaY = 0;
 
-    gameSpeed = 1000;
+    gameSpeed = 50;
     cellSize = 10;
     cellBorder = .2;
     canv = document.getElementById("mainCanvas");
@@ -157,7 +157,7 @@
             }
         }
 
-        setTimeout(game, gameSpeed / 15);
+        setTimeout(game, gameSpeed);
     }
 
     
@@ -357,14 +357,14 @@
                 yv = 1;
                 break;
             case 32:
-                if(gameSpeed == 1000) {
-                    gameSpeed = 4000;
-                } else if(gameSpeed == 4000) {
-                    gameSpeed = 9000;
-                } else if(gameSpeed == 9000) {
-                    gameSpeed = 15000;
+                if(gameSpeed == 100) {
+                    gameSpeed = 400;
+                } else if(gameSpeed == 400) {
+                    gameSpeed = 900;
+                } else if(gameSpeed == 900) {
+                    gameSpeed = 1500;
                 } else {
-                    gameSpeed = 1000;
+                    gameSpeed = 100;
                 }
                 break;
         }
