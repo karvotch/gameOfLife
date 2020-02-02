@@ -26,6 +26,11 @@
         document.addEventListener("click", mouseClick, false);
         // 1000 determines speed of snake.
         //setInterval(game, gameSpeed / 15);
+            // Creating a web socket.
+            // The gameSocket.readyState = CONNECTING at first and becomes
+                // OPEN once the connection is ready.
+        gameSocket = new WebSocket("wss://192.168.1.13/socketserver");
+        gameSocket.onopen = sendData(event);
         game();
     }
 
@@ -574,4 +579,5 @@
         //ctx.fillRect(0, 0, canv.width, canv.height);
     }
 
+    
 </script>
