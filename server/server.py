@@ -72,7 +72,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
 if __name__ == "__main__":
     #HOST, PORT = "localhost", 9999
-    HOST, PORT = "192.168.1.18", 8000
+    HOST, PORT = "192.168.1.13", 8000
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
