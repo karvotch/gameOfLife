@@ -1,18 +1,24 @@
-import SocketServer
+import socketserver
 import hashlib
 import base64
 
 WS_MAGIC_STRING = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
-class MyTCPHandler(SocketServer.BaseRequestHandler):
+class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
+        print("HEllo")
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
         headers = self.data.split("\r\n")
+        print(self.data + "\n")
+        # print(headers)
+        #for h in headers:
+        #    print(h)
 
         # is it a websocket request?
-        if "Connection: Upgrade" in self.data and "Upgrade: websocket" in self.data:
+        if "Connection: keep-alive, Upgrade" in self.data and "Upgrade: websocket" in self.data:
+            print("hello")
             # getting the websocket key out
             for h in headers:
                 if "Sec-WebSocket-Key" in h:
@@ -28,6 +34,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
                     "Bidding goodbye to our client..."
                     return
         else:
+            print("BYE")
             self.request.sendall("HTTP/1.1 400 Bad Request\r\n" + \
                                  "Content-Type: text/plain\r\n" + \
                                  "Connection: close\r\n" + \
@@ -43,6 +50,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
              "Upgrade: websocket\r\n" + \
              "Connection: Upgrade\r\n" + \
              "Sec-WebSocket-Accept: %s\r\n\r\n"%(resp_key)
+
+        print("HELLO")
 
         self.request.sendall(resp)
 
@@ -71,9 +80,41 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
 
 if __name__ == "__main__":
-    #HOST, PORT = "localhost", 9999
-    HOST, PORT = "192.168.1.13", 8000
+    print("Hello")
+    HOST, PORT = "localhost", 9999
+    #HOST, PORT = "localhost", 8000
+    # HOST, PORT = "192.168.1.13", 8000
 
     # Create the server, binding to localhost on port 9999
-    server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
+    server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
     server.serve_forever()
+
+
+
+# import socketserver
+
+# class MyTCPHandler(socketserver.BaseRequestHandler):
+#     """
+#     The request handler class for our server.
+
+#     It is instantiated once per connection to the server, and must
+#     override the handle() method to implement communication to the
+#     client.
+#     """
+
+#     def handle(self):
+#         # self.request is the TCP socket connected to the client
+#         self.data = self.request.recv(1024).strip()
+#         print("{} wrote:".format(self.client_address[0]))
+#         print(self.data)
+#         # just send back the same data, but upper-cased
+#         self.request.sendall(self.data.upper())
+
+# if __name__ == "__main__":
+#     HOST, PORT = "localhost", 9999
+
+#     # Create the server, binding to localhost on port 9999
+#     server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
+#         # Activate the server; this will keep running until you
+#         # interrupt the program with Ctrl-C
+#     server.serve_forever()

@@ -18,7 +18,7 @@ window.onload = function() {
         // Creating a web socket.
         // The gameSocket.readyState = CONNECTING at first and becomes
             // OPEN once the connection is ready.
-    gameSocket = new WebSocket("wss://192.168.1.13/socketserver");
+    gameSocket = new WebSocket('ws://localhost:9999');
         // When the gameSocket connection is open it will call the sendData function.
             // This is an event handler.
     //gameSocket.onopen = sendData(event);
