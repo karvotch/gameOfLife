@@ -12,7 +12,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         headers = self.data.split("\r\n")
         print(self.data + "\n")
-        print(headers)
+        #print(headers)
         #for h in headers:
         #    print(h)
 
