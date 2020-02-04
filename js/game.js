@@ -22,8 +22,9 @@ window.onload = function() {
         // When the gameSocket connection is open it will call the sendData function.
             // This is an event handler.
     //gameSocket.onopen = sendData(event);
+    gameSocket.onopen = function send(event){gameSocket.send("HeLlO")};
         // Another event handler that deals with incoming data.
-    //gameSocket.onmessage = receiveData(event);
+    gameSocket.onmessage = receiveData(event);
         // Closing the gameSocket connection.
             // It may be a good idea to check the gameSocket.bufferedAmount attribute before closing the connection.
                 // IDEA: When wanting to close the connection set boolean 'closing' to true.
