@@ -84,6 +84,7 @@ count = 0;
 
 
 cellsLocation = [];
+clickedCellsLocation = [];
 
 blockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
@@ -110,6 +111,12 @@ function game() {
     lastFrame = currentFrame;
     //console.log(currentFrame + " " + deltaTime + " " + lastFrame);
     if(deltaTime >= 500) {
+        for(var i = 0; i < clickedCellsLocation.length; i++) {
+            cellsLocation.push(clickedCellsLocation[i]);
+        }
+
+        console.log(clickedCellsLocation);
+
         if(gameSocket.readyState == 1) {
             sendData();
             //gameSocket.onopen = sendData;
@@ -551,7 +558,8 @@ function mouseClick(e) {
             //blockStatus[xCellPos][yCellPos] = false;
         } else {
             //blockStatus[xCellPos][yCellPos] = true;
-            cellsLocation.push([xCellPos, yCellPos]);
+            //cellsLocation.push([xCellPos, yCellPos]);
+            clickedCellsLocation.push([xCellPos, yCellPos]);
         }
     }
 }
@@ -589,8 +597,16 @@ function draw() {
 }
 
 function sendData(event) {
-    gameSocket.send(tempy);
+    //gameSocket.send(tempy);
     //console.log(tempy);
+    //let buffer = new ArrayBuffer(clickedCellsLocation.length * 2);
+    //var clickedCellsBuffer = new Int16Array(buffer);
+    //for(var i = 0; i < clickedCellsLocation.length; i++) {
+    //    clickedCellsBuffer[i*2] = clickedCellsLocation[i][0];
+    //    clickedCellsBuffer[i*2+1] = clickedCellsLocation[i][1];
+    //}
+    //gameSocket.send(clickedCellsBuffer);
+    gameSocket.send(clickedCellsLocation);
 }
 
 function receiveData(event) {
