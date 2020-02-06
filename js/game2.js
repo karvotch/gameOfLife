@@ -109,10 +109,11 @@ function game() {
             sendData();
             //gameSocket.onopen = sendData;
         }
-        
-        clickedCellsLocation.length = 0;
         //console.log(gameSocket.readyState);
+        clickedCellsLocation.length = 0;
+        
         gameSocket.onmessage = receiveData;
+
         deltaTime = 0;
 
         //cpyNextToCurrBlockStatusArray();
@@ -176,17 +177,6 @@ function game() {
 
     //console.log(gameViewOriginX + " " + gameViewOriginY);
     //console.log(gameViewOriginCellX + ", " + gameViewOriginCellY);
-        // TODO: There might be problems with this.
-    //for (var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
-    //    for(var j = gameViewOriginCellY; j < gameViewOriginCellY + gameViewCellWidth + 2; j++) {
-    //        ctx.fillRect((i * cellSize) - gameViewOriginX, (j * cellSize) - gameViewOriginY, cellSize, cellBorder);
-    //        ctx.fillRect((i * cellSize) - gameViewOriginX, (j * cellSize) - gameViewOriginY, cellBorder, cellSize);
-
-    //        //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, cellBorder, -(cellSize));
-    //        //ctx.fillRect((i+1) * cellSize, (j+1) * cellSize, -(cellSize), -cellBorder);
-    //    }
-    //}
-
     for (var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
         ctx.fillRect((i * cellSize) - gameViewOriginX, 0, cellBorder, cellSize * (gameViewCellHeight + 1));
     }
