@@ -5,7 +5,12 @@
 import asyncio
 import websockets
 
+
+playerCount = 0
+playerColor = []
+
 async def hello(websocket, path):
+
     while True:
         name = await websocket.recv()
 

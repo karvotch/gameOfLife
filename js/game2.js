@@ -20,11 +20,6 @@ window.onload = function() {
             // OPEN once the connection is ready.
     //gameSocket = new WebSocket('ws://localhost:9999');
     gameSocket = new WebSocket('ws://192.168.1.18:8000');
-        // When the gameSocket connection is open it will call the sendData function.
-            // This is an event handler.
-    //gameSocket.onopen = sendData;
-        // Another event handler that deals with incoming data.
-    //gameSocket.onmessage = receiveData;
         // Closing the gameSocket connection.
             // It may be a good idea to check the gameSocket.bufferedAmount attribute before closing the connection.
                 // IDEA: When wanting to close the connection set boolean 'closing' to true.
@@ -35,23 +30,6 @@ window.onload = function() {
 }
 
 
-tempy = 3
-deltaTime = 0;
-lastFrame = 0;
-
-pauseGame = false;
-isDragging = false;
-isMouseDown = false;
-cursorCoordX = 0;
-cursorCoordY = 0;
-//cursorMoveX = 0;
-//cursorMoveY = 0;
-dragDeltaX = 0;
-dragDeltaY = 0;
-
-gameSpeed = 1000;
-cellSize = 10;
-cellBorder = .2;
 canv = document.getElementById("mainCanvas");
 
 canv.width = window.innerWidth;
@@ -59,9 +37,6 @@ canv.height = window.innerHeight;
 
 sandboxWidth = 400;
 sandboxHeight = 400;
-
-//gameViewOriginX = ((sandboxWidth / 2) * cellSize) - (canv.width / 2);
-//gameViewOriginY = ((sandboxHeight / 2) * cellSize) - (canv.height / 2);
 
 gameViewOriginX = 0;
 gameViewOriginY = 0;
@@ -72,16 +47,29 @@ gameViewOriginCellY = 0;
 gameViewCellWidth = 0;
 gameViewCellHeight = 0;
 
-//console.log(gameViewOriginX + ", " + gameViewOriginY);
+cellSize = 10;
+cellBorder = .2;
 
-//sandboxViewWidth = Math.floor((canv.width * 2) / cellSize);
-//sandboxViewHeight = Math.floor((canv.height * 2) / cellSize);
+tempy = 3
+deltaTime = 0;
+lastFrame = 0;
 
-//console.log(sandboxViewHeight + " " + sandboxViewWidth);
+myColor = "";
+opponentsColors = [];
 
-bg = st = 20;
+pauseGame = false;
+isDragging = false;
+isMouseDown = false;
+
+cursorCoordX = 0;
+cursorCoordY = 0;
+dragDeltaX = 0;
+dragDeltaY = 0;
+
+gameLogicSpeed = 100;
+
+
 count = 0;
-
 
 cellsLocation = [];
 clickedCellsLocation = [];
@@ -110,7 +98,7 @@ function game() {
     deltaTime += currentFrame - lastFrame;
     lastFrame = currentFrame;
     //console.log(currentFrame + " " + deltaTime + " " + lastFrame);
-    if(deltaTime >= 100 && !pauseGame) {
+    if(deltaTime >= gameLogicSpeed && !pauseGame) {
         for(var i = 0; i < clickedCellsLocation.length; i++) {
             cellsLocation.push(clickedCellsLocation[i]);
         }
@@ -137,20 +125,20 @@ function game() {
     
 
     if(count == 1) {
-        cellsLocation.push([bg, st]);
-        cellsLocation.push([21, st]);
-        cellsLocation.push([22, st]);
+        cellsLocation.push([20, 20]);
+        cellsLocation.push([21, 20]);
+        cellsLocation.push([22, 20]);
         cellsLocation.push([22, 19]);
         cellsLocation.push([21, 18]);
 
-        cellsLocation.push([st, 0]);
+        cellsLocation.push([20, 0]);
         cellsLocation.push([21, 0]);
-        cellsLocation.push([st, 1]);
+        cellsLocation.push([20, 1]);
         cellsLocation.push([21, 1]);
 
-        cellsLocation.push([0, st]);
+        cellsLocation.push([0, 20]);
         cellsLocation.push([0, 21]);
-        cellsLocation.push([1, st]);
+        cellsLocation.push([1, 20]);
         cellsLocation.push([1, 21]);
 
         cellsLocation.push([390, 390]);
@@ -216,7 +204,7 @@ function game() {
     //    
     //}
 
-    ctx.fillStyle = "lime";
+    ctx.fillStyle = myColor || "lime";
     for (var i = 0; i < cellsLocation.length; i++) {
         ctx.fillRect((cellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (cellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
@@ -226,7 +214,6 @@ function game() {
         ctx.fillRect((clickedCellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (clickedCellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
 
-    //setTimeout(game, gameSpeed / 15);
     window.requestAnimationFrame(game);
 }
 
@@ -529,8 +516,8 @@ function mouseDrag(e) {
     //if(isMouseDown == true) {
     if(isDragging == true) {
         didDrag = true;
-        cursorMoveX = e.clientX;
-        cursorMoveY = e.clientY;
+        let cursorMoveX = e.clientX;
+        let cursorMoveY = e.clientY;
         dragDeltaX = cursorCoordX - cursorMoveX ;
         dragDeltaY = cursorCoordY - cursorMoveY ;
         cursorCoordX = cursorMoveX;
@@ -620,39 +607,4 @@ function receiveData(event) {
     //console.log(event.data);
     tempy = event.data;
 
-        // This is an example of receiving a json object.
-            // This example is in context to a chat client app.
-    //var f = document.getElementById("chatbox").contentDocument;
-    //var text = "";
-    //var msg = JSON.parse(event.data);
-    //var time = new Date(msg.date);
-    //var timeStr = time.toLocaleTimeString();
-    //
-    //switch(msg.type) {
-    //    case "id":
-    //      clientID = msg.id;
-    //      setUsername();
-    //      break;
-    //    case "username":
-    //      text = "<b>User <em>" + msg.name + "</em> signed in at " + timeStr + "</b><br>";
-    //      break;
-    //    case "message":
-    //      text = "(" + timeStr + ") <b>" + msg.name + "</b>: " + msg.text + "<br>";
-    //      break;
-    //    case "rejectusername":
-    //      text = "<b>Your username has been set to <em>" + msg.name + "</em> because the name you chose is in use.</b><br>"
-    //      break;
-    //    case "userlist":
-    //      var ul = "";
-    //      for (i=0; i < msg.users.length; i++) {
-    //        ul += msg.users[i] + "<br>";
-    //      }
-    //      document.getElementById("userlistbox").innerHTML = ul;
-    //      break;
-    //}
-    //
-    //if (text.length) {
-    //    f.write(text);
-    //    document.getElementById("chatbox").contentWindow.scrollByPages(1);
-    //}
 }
