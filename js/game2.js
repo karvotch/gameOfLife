@@ -110,7 +110,7 @@ function game() {
     deltaTime += currentFrame - lastFrame;
     lastFrame = currentFrame;
     //console.log(currentFrame + " " + deltaTime + " " + lastFrame);
-    if(deltaTime >= 500 && !pauseGame) {
+    if(deltaTime >= 100 && !pauseGame) {
         for(var i = 0; i < clickedCellsLocation.length; i++) {
             cellsLocation.push(clickedCellsLocation[i]);
         }
@@ -121,6 +121,8 @@ function game() {
             sendData();
             //gameSocket.onopen = sendData;
         }
+        
+        clickedCellsLocation.length = 0;
         //console.log(gameSocket.readyState);
         gameSocket.onmessage = receiveData;
         deltaTime = 0;
@@ -219,7 +221,7 @@ function game() {
         ctx.fillRect((cellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (cellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
 
-    ctx.fillStyle = "green";
+    ctx.fillStyle = "#FFFFFF";
     for (var i = 0; i < clickedCellsLocation.length; i++) {
         ctx.fillRect((clickedCellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (clickedCellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
@@ -609,7 +611,7 @@ function sendData(event) {
     //}
     //gameSocket.send(clickedCellsBuffer);
     gameSocket.send(clickedCellsLocation);
-    clickedCellsLocation.length = 0;
+    //clickedCellsLocation.length = 0;
 }
 
 function receiveData(event) {
