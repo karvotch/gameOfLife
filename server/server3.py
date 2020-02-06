@@ -9,10 +9,11 @@ async def hello(websocket, path):
     while True:
         name = await websocket.recv()
 
-        print(f"< {name}")
-        name = int(name)
-        name += 2
-        name = f"{name}"
+        #print(f"< {name}")
+        print(name)
+        #name = int(name)
+        #name += 2
+        #name = f"{name}"
 
         await websocket.send(name)
 

@@ -110,28 +110,25 @@ function game() {
     deltaTime += currentFrame - lastFrame;
     lastFrame = currentFrame;
     //console.log(currentFrame + " " + deltaTime + " " + lastFrame);
-    if(deltaTime >= 500) {
+    if(deltaTime >= 500 && !pauseGame) {
         for(var i = 0; i < clickedCellsLocation.length; i++) {
             cellsLocation.push(clickedCellsLocation[i]);
         }
 
-        console.log(clickedCellsLocation);
+        //console.log(clickedCellsLocation);
 
         if(gameSocket.readyState == 1) {
             sendData();
             //gameSocket.onopen = sendData;
-            //console.log("i need to know");
         }
-        //console.log("okay");
-        console.log(gameSocket.readyState);
+        //console.log(gameSocket.readyState);
         gameSocket.onmessage = receiveData;
         deltaTime = 0;
-        if(!pauseGame) {
-            //cpyNextToCurrBlockStatusArray();
-            clearBlockStatusArray();
-            cpyCellToBlockStatusArray();
-            setNextBlockStatus();
-        }
+
+        //cpyNextToCurrBlockStatusArray();
+        clearBlockStatusArray();
+        cpyCellToBlockStatusArray();
+        setNextBlockStatus();
     }
 
 
@@ -220,6 +217,11 @@ function game() {
     ctx.fillStyle = "lime";
     for (var i = 0; i < cellsLocation.length; i++) {
         ctx.fillRect((cellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (cellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
+    }
+
+    ctx.fillStyle = "green";
+    for (var i = 0; i < clickedCellsLocation.length; i++) {
+        ctx.fillRect((clickedCellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (clickedCellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
 
     //setTimeout(game, gameSpeed / 15);
@@ -607,12 +609,13 @@ function sendData(event) {
     //}
     //gameSocket.send(clickedCellsBuffer);
     gameSocket.send(clickedCellsLocation);
+    clickedCellsLocation.length = 0;
 }
 
 function receiveData(event) {
         // Receiving a message from the server.
             // Text received from a WebSocket connection is in UTF-8 format.
-    console.log(event.data);
+    //console.log(event.data);
     tempy = event.data;
 
         // This is an example of receiving a json object.
