@@ -27,8 +27,7 @@ window.onload = function() {
                 // Once all remaining data has been sent and received the gameSocket will close.
     //gameSocket.close();
     game();
-}
-
+};
 
 canv = document.getElementById("mainCanvas");
 
@@ -73,6 +72,8 @@ count = 0;
 
 cellsLocation = [];
 clickedCellsLocation = [];
+
+opponentsCellsLocation = [];
 
 blockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
@@ -194,6 +195,7 @@ function game() {
     //    
     //}
 
+    //console.log(myColor);
     ctx.fillStyle = myColor || "lime";
     for (var i = 0; i < cellsLocation.length; i++) {
         ctx.fillRect((cellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (cellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
@@ -587,14 +589,33 @@ function sendData(event) {
     //    clickedCellsBuffer[i*2+1] = clickedCellsLocation[i][1];
     //}
     //gameSocket.send(clickedCellsBuffer);
-    gameSocket.send(clickedCellsLocation);
+    if(clickedCellsLocation.length > 0) {
+        gameSocket.send(clickedCellsLocation);
+    }
     //clickedCellsLocation.length = 0;
 }
+
+isItColor = false;
 
 function receiveData(event) {
         // Receiving a message from the server.
             // Text received from a WebSocket connection is in UTF-8 format.
-    //console.log(event.data);
-    tempy = event.data;
+    console.log(event.data);
+    data = JSON.parse(event.data);
+    if(data.color) {
+        myColor = data.color;
+        //console.log(myColor);
+    }
+    //let dataReceived = event.data;
+    //if(isItColor == true) {
+    //    myColor = dataReceived;
+    //    isItColor = false;
+    //    //console.log(dataReceived);
+    //}
+
+    //if(dataReceived == "color") {
+    //    isItColor = true;
+    //}
+
 
 }
