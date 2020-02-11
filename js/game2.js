@@ -258,9 +258,16 @@ function game() {
         ctx.fillRect((clickedCellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (clickedCellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
 
-    for(var i = 0; i < opponentsCellsLocation.count; i++) {
-        ctx.fillStyle = opponentsCellsLocation.cellLocation[i].color;
-        for(var j = 0; j < opponentsCellsLocation.cellLocation[i].cells
+    //for(var i = 0; i < opponentsCellsLocation.count; i++) {
+    //    ctx.fillStyle = opponentsCellsLocation.cellLocation[i].color;
+    //    for(var j = 0; j < opponentsCellsLocation.cellLocation[i].cells
+    //}
+
+    for(var i = 0; i < opponentsCellsLocation.length; i++) {
+        ctx.fillStyle = opponentsCellsLocation[i][0][1];
+        for(var j = 1; j < opponentsCellsLocation[i].length; j++) {
+            ctx.fillRect((opponentsCellsLocation[i][j][0] * cellSize + cellBorder) - gameViewOriginX, (opponentsCellsLocation[i][j][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
+        }
     }
 
         // Loop the same function we are in.
@@ -678,15 +685,17 @@ function receiveData(event) {
         // Receiving a message from the server.
             // Text received from a WebSocket connection is in UTF-8 format.
     console.log(event.data);
-    data = JSON.parse(event.data);
-    if(data.color) {
-        myColor = data.color;
-        playerNumber = data.playerCount;
-        //console.log(myColor);
-    } else if(data.cellLocation) {
-        playerCount = data.playerCount;
-        opponentsCellsLocation = data.cellLocation;
-    }
+    data = event.data;
+    
+    //data = JSON.parse(event.data);
+    //if(data.color) {
+    //    myColor = data.color;
+    //    playerNumber = data.playerCount;
+    //    //console.log(myColor);
+    //} else if(data.cellLocation) {
+    //    playerCount = data.playerCount;
+    //    opponentsCellsLocation = data.cellLocation;
+    //}
     //let dataReceived = event.data;
     //if(isItColor == true) {
     //    myColor = dataReceived;
@@ -697,6 +706,5 @@ function receiveData(event) {
     //if(dataReceived == "color") {
     //    isItColor = true;
     //}
-
 
 }
