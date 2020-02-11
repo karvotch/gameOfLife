@@ -34,47 +34,75 @@ canv = document.getElementById("mainCanvas");
 canv.width = window.innerWidth;
 canv.height = window.innerHeight;
 
+    // The dimensions of the sandbox in cells.
 sandboxWidth = 400;
 sandboxHeight = 400;
 
+    // The pixel the top left corner (origin) is on.
 gameViewOriginX = 0;
 gameViewOriginY = 0;
 
+    // The cell the top left corner (origin) is on.
 gameViewOriginCellX = 0;
 gameViewOriginCellY = 0;
 
+    // The dimensions of the game view in cells.
+        // The number of cells increase when zooming out and decrease when zooming in.
 gameViewCellWidth = 0;
 gameViewCellHeight = 0;
 
+    // The length and width of a cell in pixels.
 cellSize = 10;
+    // The length or width of the border of a cell in pixels.
 cellBorder = .2;
 
+    // tempy is being used to learn about web sockets.
 tempy = 3
+
+    // The deltaTime and lastFrame variables are being used to interval the game logic.
+        // This is necessary to separate game logic from game rendering.
+            // This creates a smooth experience of navigating the sandbox.
+            // The game rendering and game logic used to be interlocked resulting in the navigation of the
+                // sandbox to be locked to the speed of the game logic. This can be painful when game logic
+                    // is slowed down for testing or placing cells.
 deltaTime = 0;
 lastFrame = 0;
 
+    // Going to be used to receive a color from the server.
 myColor = "";
+    // Same thing as myColor except for opponents colors.
 opponentsColors = [];
 
+    // This boolean is used when pausing the game logic to place cells.
 pauseGame = false;
+    // This boolean is used to deal with mouse drags when wanting to navigate the sandbox.
 isDragging = false;
+    // This boolean helps to differentiate between a mouse drag or mouse click.
 isMouseDown = false;
 
+    // These variables are used to determine what block was clicked on to fill it with a cell.
 cursorCoordX = 0;
 cursorCoordY = 0;
+    // These variables are used to determine how much the mouse has been dragged from its original spot.
+        // They are used for navigating the sandbox.
 dragDeltaX = 0;
 dragDeltaY = 0;
 
+    // The interval speed for game logic.
+    // The variable uses milliseconds to determine game logic 
+        // (100 = 100 milliseconds until the next call to game logic).
 gameLogicSpeed = 100;
 
-
+    // How many times the game has been drawn or rendered.
 count = 0;
 
+    // The location of all cells for the current player.
 cellsLocation = [];
+    // The location of all clicked blocks in the current game logic loop to fill them with cells.
 clickedCellsLocation = [];
-
+    // The location of all cells for each opponent.
 opponentsCellsLocation = [];
-
+    // An array of all blocks in the sandbox (400*400).
 blockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
     blockStatus.push(new Array(sandboxHeight));
@@ -82,7 +110,9 @@ for(var i = 0; i < sandboxWidth; i++) {
         blockStatus[i][j] = false;
     }
 }
-
+    // An array of all blocks in the sanbox (400*400)
+        // A second array for all blocks is necessary for 
+            // game logic to separate old cells from new ones when counting surrounding cells.
 nextBlockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
     nextBlockStatus.push(new Array(sandboxHeight));
@@ -91,32 +121,41 @@ for(var i = 0; i < sandboxWidth; i++) {
     }
 }
 
+    // The main function that deals with both game rendering and game logic.
 function game() {
     count += 1;
     
-
+        // These variables are dealing with the delta time between frames.
     let currentFrame = Date.now();
     deltaTime += currentFrame - lastFrame;
     lastFrame = currentFrame;
     //console.log(currentFrame + " " + deltaTime + " " + lastFrame);
+
+        // This loop deals with game logic.
     if(deltaTime >= gameLogicSpeed && !pauseGame) {
+            // This loop is adding the clickedCellsLocation array to the main cellsLocation array.
         for(var i = 0; i < clickedCellsLocation.length; i++) {
             cellsLocation.push(clickedCellsLocation[i]);
         }
 
         //console.log(clickedCellsLocation);
-
+        
+            // This loop is checking if the web socket connection is still connected.
         if(gameSocket.readyState == 1) {
+                // Call a function to send data to the server.
             sendData();
             //gameSocket.onopen = sendData;
         }
         //console.log(gameSocket.readyState);
-        clickedCellsLocation.length = 0;
         
+            // Emptying the array to be ready for the next loop of game logic.
+        clickedCellsLocation.length = 0;
+            // Will receive data from the server if there is something to be received.
         gameSocket.onmessage = receiveData;
-
+            // Finally reset the deltaTime.
         deltaTime = 0;
 
+            // Last, deal with game logic.
         //cpyNextToCurrBlockStatusArray();
         clearBlockStatusArray();
         cpyCellToBlockStatusArray();
@@ -125,7 +164,7 @@ function game() {
 
 
     
-
+        // Preset cells to use for testing.
     if(count == 1) {
         cellsLocation.push([20, 20]);
         cellsLocation.push([21, 20]);
@@ -168,20 +207,24 @@ function game() {
         cellsLocation.push([11, 12]);
     }
     
+        // Call the draw function.
+            // This is used if the window is resized.
     draw();
 
+        // Select a color and fill the whole screen with it.
     ctx.fillStyle = "gray";
     ctx.fillRect(0, 0, canv.width, canv.height);
 
-
+        // Select another color.
     ctx.fillStyle = "black";
-
     //console.log(gameViewOriginX + " " + gameViewOriginY);
     //console.log(gameViewOriginCellX + ", " + gameViewOriginCellY);
+        
+        // Draw the horizontal border lines.
     for (var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
         ctx.fillRect((i * cellSize) - gameViewOriginX, 0, cellBorder, cellSize * (gameViewCellHeight + 1));
     }
-
+        // Draw the vertical border lines.
     for(var j = gameViewOriginCellY; j < gameViewOriginCellY + gameViewCellHeight + 2; j++) {
         ctx.fillRect(0, (j * cellSize) - gameViewOriginY, cellSize * (gameViewCellWidth + 1), cellBorder);
     }
@@ -196,23 +239,31 @@ function game() {
     //}
 
     //console.log(myColor);
+
+        // Select a color for the cell color
     ctx.fillStyle = myColor || "lime";
+        // Draw all cells onto the sandbox.
     for (var i = 0; i < cellsLocation.length; i++) {
         ctx.fillRect((cellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (cellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
 
+        // Select a color for the clicked cells.
     ctx.fillStyle = "#FFFFFF";
+        // Draw all clicked cells onto the sandbox.
     for (var i = 0; i < clickedCellsLocation.length; i++) {
         ctx.fillRect((clickedCellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (clickedCellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
 
+        // Loop the same function we are in.
     window.requestAnimationFrame(game);
 }
 
-
+    // Game logic for all cells.
 function setNextBlockStatus() {
     let arrayLength = cellsLocation.length;
     //console.log(arrayLength);
+
+        // Loop will count all cells' surrounding cells and check empty blocks nearby.
     for (var i = 0; i < arrayLength; i++) {
         surrCellCount = 0;
 
@@ -275,6 +326,7 @@ function setNextBlockStatus() {
     }
 }
 
+    // Function will check if the block has a cell and return a 1 or 0 based on that info.
 function checkSurrBlock(xa, ya) {
     if(blockStatus[xa][ya] == false) {
         if(nextBlockStatus[xa][ya] == false) {
@@ -286,7 +338,7 @@ function checkSurrBlock(xa, ya) {
    }
 }
 
-
+    // Function will check if an empty block near a cell deserves to become a cell.
 function checkEmptyCellStatus(xa, ya) {
 
     let topL = [xa-1, ya-1];
@@ -356,6 +408,7 @@ function checkEmptyCellStatus(xa, ya) {
     }
 }
 
+    // Function will clear both block status arrays.
 function clearBlockStatusArray() {
     for (var i = 0; i < sandboxHeight; i++) {
         for(var j = 0; j < sandboxHeight; j++) {
@@ -365,6 +418,7 @@ function clearBlockStatusArray() {
     }
 }
 
+    // Function will copy info from nextBlockStatus to blockStatus array.
 function cpyNextToCurrBlockStatusArray() {
     for (var i = 0; i < sandboxWidth; i++) {
         for(var j = 0; j < sandboxHeight; j++) {
@@ -373,6 +427,7 @@ function cpyNextToCurrBlockStatusArray() {
     }
 }
 
+    // Function will place all cells into blockStatus array.
 function cpyCellToBlockStatusArray() {
     let arrayLength = cellsLocation.length;
     for (var i = 0; i < arrayLength; i++) {
@@ -381,6 +436,7 @@ function cpyCellToBlockStatusArray() {
     }
 }
 
+    // An event listener for keyboard presses.
 function keyPush(evt) {
     switch (evt.keyCode) {
         case 37:
@@ -410,6 +466,8 @@ function keyPush(evt) {
     }
 }
 
+    // An event listener for the mouse wheel.
+        // Used for zooming.
 function mouseWheel(e) {
     //console.log(e.deltaY);
     deltaY = e.deltaY / 2;
@@ -487,6 +545,7 @@ function setGameViewCell() {
     gameViewCellHeight = Math.floor(canv.height / cellSize);
 }
 
+    // Event listener for mouse clicks.
 function mouseDown(e) {
     didDrag = false;
     cursorCoordX = e.clientX;
@@ -494,16 +553,21 @@ function mouseDown(e) {
     isDragTimer = setTimeout(isDrag, 150);
 }
 
+    // Function that is waiting for a timeout to expire.
+        // If the time limit is reached then the mouse click is determined to be a drag.
 function isDrag() {
     isDragging = true;
 }
 
+    // Event listener for release of a mouse click.
 function mouseUp(e) {
     //isMouseDown = false;
     clearTimeout(isDragTimer);
     isDragging = false;
 }
 
+    // Event listener that is always being triggered while the mouse moves, 
+        // but will only trigger code once the isDrag function is called.
 function mouseDrag(e) {
     //if(isMouseDown == true) {
     if(isDragging == true) {
@@ -529,6 +593,8 @@ function mouseDrag(e) {
     }
 }
 
+    // Event listener that is called once the mouse is clicked and released.
+        // Will not trigger code if isDrag is called.
 function mouseClick(e) {
     if(!didDrag) {
         var xPosition = e.clientX;
@@ -547,7 +613,7 @@ function mouseClick(e) {
     }
 }
 
-
+    // The draw function that deals with window resizing.
 function draw() {
     //ctx = canv.getContext("2d");
     //ctx.canvas.width  = window.innerWidth;
@@ -579,6 +645,7 @@ function draw() {
     //ctx.fillRect(0, 0, canv.width, canv.height);
 }
 
+    // Function that will send if there is any to be sent.
 function sendData(event) {
     //gameSocket.send(tempy);
     //console.log(tempy);
@@ -597,6 +664,7 @@ function sendData(event) {
 
 isItColor = false;
 
+    // Function that will received data if there is any to be received.
 function receiveData(event) {
         // Receiving a message from the server.
             // Text received from a WebSocket connection is in UTF-8 format.
