@@ -8,8 +8,9 @@ import json
 
 
 playerCount = 0
+count = 0
 playerColors = ["green", "red", "yellow", "blue", "purple", "orange"]
-allCellsLocations
+dataArray
 
 async def hello(websocket, path):
     global playerCount
@@ -25,7 +26,6 @@ async def hello(websocket, path):
         data = await websocket.recv()
         #data = json.loads(data)
         #addToJSON(data)
-        addToArray(data)
 
         print(data)
 
@@ -35,6 +35,7 @@ async def hello(websocket, path):
         #await websocket.send(jsonArray)
         await websocket.send(dataArray)
 
+        addToArray(data)
 
 def addToArray(data) {
     dataArray.push(data)
