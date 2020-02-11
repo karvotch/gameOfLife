@@ -666,7 +666,7 @@ function sendData(event) {
     //}
     //gameSocket.send(clickedCellsBuffer);
     if(clickedCellsLocation.length > 0) {
-        clickedCellsLocation.splice(0, 0, playerNumber);
+        clickedCellsLocation.splice(0, 0, playerNumber, myColor);
         gameSocket.send(clickedCellsLocation);
     }
     //clickedCellsLocation.length = 0;
