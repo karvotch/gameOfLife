@@ -31,6 +31,8 @@ window.onload = function() {
 
 canv = document.getElementById("mainCanvas");
 
+    // Setting the width and length of the canvas 
+        // to the width and length of the monitor to perfectly fit the screen.
 canv.width = window.innerWidth;
 canv.height = window.innerHeight;
 
