@@ -73,7 +73,7 @@ playerCount = 0;
     // Going to be used to receive a color from the server.
 myColor = "";
     // Same thing as myColor except for opponents colors.
-opponentsColors = [];
+opponentsColors = new Array(6);
 
     // This boolean is used when pausing the game logic to place cells.
 pauseGame = false;
@@ -108,7 +108,7 @@ opponentsCellsLocation = [];
 blockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
     blockStatus.push(new Array(sandboxHeight));
-    for(var j = 0; j < sandboxWidth; j++) {
+    for(var j = 0; j < sandboxHeight; j++) {
         blockStatus[i][j] = false;
     }
 }
@@ -118,7 +118,7 @@ for(var i = 0; i < sandboxWidth; i++) {
 nextBlockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
     nextBlockStatus.push(new Array(sandboxHeight));
-    for(var j = 0; j < sandboxWidth; j++) {
+    for(var j = 0; j < sandboxHeight; j++) {
         nextBlockStatus[i][j] = false;
     }
 }
@@ -264,7 +264,7 @@ function game() {
     //}
 
     for(var i = 0; i < opponentsCellsLocation.length; i++) {
-        ctx.fillStyle = opponentsCellsLocation[i][0][1];
+        ctx.fillStyle = opponentsColors;
         for(var j = 1; j < opponentsCellsLocation[i].length; j++) {
             ctx.fillRect((opponentsCellsLocation[i][j][0] * cellSize + cellBorder) - gameViewOriginX, (opponentsCellsLocation[i][j][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
         }
@@ -686,6 +686,12 @@ function receiveData(event) {
             // Text received from a WebSocket connection is in UTF-8 format.
     console.log(event.data);
     data = event.data;
+    for(var i = 0; i < data.length; i++) {
+        let number = data[i][0][0] - 1;
+        opponentsColors[number] = data[i][0][1];
+        data[i].splice(0, 1);
+        opponentsCellsLocation[number].push(data);
+    }
     
     //data = JSON.parse(event.data);
     //if(data.color) {
