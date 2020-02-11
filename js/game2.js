@@ -13,12 +13,9 @@ window.onload = function() {
     document.addEventListener("mouseup", mouseUp, false);
     document.addEventListener("mousemove", mouseDrag);
     document.addEventListener("click", mouseClick, false);
-    // 1000 determines speed of snake.
-    //setInterval(game, gameSpeed / 15);
         // Creating a web socket.
         // The gameSocket.readyState = CONNECTING at first and becomes
             // OPEN once the connection is ready.
-    //gameSocket = new WebSocket('ws://localhost:9999');
     gameSocket = new WebSocket('ws://192.168.1.18:8000');
         // Closing the gameSocket connection.
             // It may be a good idea to check the gameSocket.bufferedAmount attribute before closing the connection.
@@ -60,6 +57,7 @@ cellBorder = .2;
 
     // tempy is being used to learn about web sockets.
 tempy = 3
+isItColor = false;
 
     // The deltaTime and lastFrame variables are being used to interval the game logic.
         // This is necessary to separate game logic from game rendering.
@@ -70,6 +68,8 @@ tempy = 3
 deltaTime = 0;
 lastFrame = 0;
 
+playerNumber = 0;
+playerCount = 0;
     // Going to be used to receive a color from the server.
 myColor = "";
     // Same thing as myColor except for opponents colors.
@@ -143,6 +143,8 @@ function game() {
         //console.log(clickedCellsLocation);
         
             // This loop is checking if the web socket connection is still connected.
+                // gameSocket.readyState can either be 0, 1, 2, or 3.
+                // 0: Connecting; 1: Connected, Open; 2: Closing; 3: Closed.
         if(gameSocket.readyState == 1) {
                 // Call a function to send data to the server.
             sendData();
@@ -223,7 +225,7 @@ function game() {
     //console.log(gameViewOriginCellX + ", " + gameViewOriginCellY);
         
         // Draw the horizontal border lines.
-    for (var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
+    for(var i = gameViewOriginCellX; i < gameViewOriginCellX + gameViewCellWidth + 2; i++) {
         ctx.fillRect((i * cellSize) - gameViewOriginX, 0, cellBorder, cellSize * (gameViewCellHeight + 1));
     }
         // Draw the vertical border lines.
@@ -245,15 +247,20 @@ function game() {
         // Select a color for the cell color
     ctx.fillStyle = myColor || "lime";
         // Draw all cells onto the sandbox.
-    for (var i = 0; i < cellsLocation.length; i++) {
+    for(var i = 0; i < cellsLocation.length; i++) {
         ctx.fillRect((cellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (cellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
     }
 
         // Select a color for the clicked cells.
     ctx.fillStyle = "#FFFFFF";
         // Draw all clicked cells onto the sandbox.
-    for (var i = 0; i < clickedCellsLocation.length; i++) {
+    for(var i = 0; i < clickedCellsLocation.length; i++) {
         ctx.fillRect((clickedCellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (clickedCellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
+    }
+
+    for(var i = 0; i < opponentsCellsLocation.count; i++) {
+        ctx.fillStyle = opponentsCellsLocation.cellLocation[i].color;
+        for(var j = 0; j < opponentsCellsLocation.cellLocation[i].cells
     }
 
         // Loop the same function we are in.
@@ -659,12 +666,12 @@ function sendData(event) {
     //}
     //gameSocket.send(clickedCellsBuffer);
     if(clickedCellsLocation.length > 0) {
+        clickedCellsLocation.splice(0, 0, playerNumber);
         gameSocket.send(clickedCellsLocation);
     }
     //clickedCellsLocation.length = 0;
 }
 
-isItColor = false;
 
     // Function that will received data if there is any to be received.
 function receiveData(event) {
@@ -674,7 +681,11 @@ function receiveData(event) {
     data = JSON.parse(event.data);
     if(data.color) {
         myColor = data.color;
+        playerNumber = data.playerCount;
         //console.log(myColor);
+    } else if(data.cellLocation) {
+        playerCount = data.playerCount;
+        opponentsCellsLocation = data.cellLocation;
     }
     //let dataReceived = event.data;
     //if(isItColor == true) {

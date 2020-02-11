@@ -4,35 +4,41 @@
 
 import asyncio
 import websockets
+import json
 
 
 playerCount = 0
 playerColors = ["green", "red", "yellow", "blue", "purple", "orange"]
-count = 0
+allCellsLocations
 
 async def hello(websocket, path):
-    global count
     global playerCount
     global playerColors
-    #playerColor = ["color", playerColors[count]]
-    playerColor = f'{{"color": "{playerColors[count]}"}}'
 
+    playerColor = f'{{"color": "{playerColors[playerCount]}", 
+                        "playerCount": "{playerCount}"}}'
 
     await websocket.send(playerColor)
-    #await websocket.send(playerColor[0])
-    #await websocket.send(playerColor[1])
-    count += 1
     playerCount += 1
+
     while True:
         data = await websocket.recv()
+        #data = json.loads(data)
+        #addToJSON(data)
+        addToArray(data)
 
-        #print(f"< {name}")
         print(data)
-        #name = int(name)
-        #name += 2
-        #name = f"{name}"
 
-        await websocket.send(data)
+        #json.dumps(jsonArray, separators=(',', ':'), data)
+
+        #await websocket.send(data)
+        #await websocket.send(jsonArray)
+        await websocket.send(dataArray)
+
+
+def addToArray(data) {
+    dataArray.push(data)
+}
 
 start_server = websockets.serve(data, "192.168.1.18", 8000)
 
