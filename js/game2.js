@@ -73,7 +73,8 @@ playerCount = 0;
     // Going to be used to receive a color from the server.
 myColor = "";
     // Same thing as myColor except for opponents colors.
-opponentsColors = new Array(6);
+//opponentsColors = new Array(6);
+opponentsColors = ["green", "red", "yellow", "blue", "purple", "orange"];
 
     // This boolean is used when pausing the game logic to place cells.
 pauseGame = false;
@@ -103,7 +104,10 @@ cellsLocation = [];
     // The location of all clicked blocks in the current game logic loop to fill them with cells.
 clickedCellsLocation = [];
     // The location of all cells for each opponent.
-opponentsCellsLocation = [];
+opponentsCellsLocation = new Array(6);
+for(var i = 0; i < opponentsCellsLocation.length; i++) {
+    opponentsCellsLocation[i] = new Array();
+}
     // An array of all blocks in the sandbox (400*400).
 blockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
@@ -138,6 +142,7 @@ function game() {
             // This loop is adding the clickedCellsLocation array to the main cellsLocation array.
         for(var i = 0; i < clickedCellsLocation.length; i++) {
             cellsLocation.push(clickedCellsLocation[i]);
+            console.log(clickedCellsLocation.length);
         }
 
         //console.log(clickedCellsLocation);
@@ -663,20 +668,18 @@ function draw() {
 
     // Function that will send if there is any to be sent.
 function sendData(event) {
-    //gameSocket.send(tempy);
-    //console.log(tempy);
-    //let buffer = new ArrayBuffer(clickedCellsLocation.length * 2);
-    //var clickedCellsBuffer = new Int16Array(buffer);
-    //for(var i = 0; i < clickedCellsLocation.length; i++) {
-    //    clickedCellsBuffer[i*2] = clickedCellsLocation[i][0];
-    //    clickedCellsBuffer[i*2+1] = clickedCellsLocation[i][1];
-    //}
-    //gameSocket.send(clickedCellsBuffer);
     if(clickedCellsLocation.length > 0) {
-        clickedCellsLocation.splice(0, 0, playerNumber, myColor);
-        gameSocket.send(clickedCellsLocation);
+        let dataBuffer = {};
+        let minorDataBuffer = {};
+        dataBuffer[0] = playerNumber;
+        for(var i = 0; i < clickedCellsLocation.length; i++) {
+            minorDataBuffer[i] = {};
+            minorDataBuffer[i][0] = clickedCellsLocation[i][0];
+            minorDataBuffer[i][1] = clickedCellsLocation[i][1];
+        }
+        dataBuffer[1] = minorDataBuffer;
+        gameSocket.send(JSON.stringify(dataBuffer));
     }
-    //clickedCellsLocation.length = 0;
 }
 
 
@@ -686,42 +689,19 @@ function receiveData(event) {
             // Text received from a WebSocket connection is in UTF-8 format.
     console.log(event.data);
     data = event.data;
-    if(typeof(data) === 'string') {
-        data = JSON.parse(event.data);
-        if(data.color) {
-            myColor = data.color;
-            playerNumber = data.playerCount;
-            //console.log(myColor);
-        }
+    data = JSON.parse(data);
+    if(data.color) {
+        myColor = data.color;
+        playerNumber = data.playerID;
+        //console.log(myColor);
     } else {
-        for(var i = 0; i < data.length; i++) {
-            let number = data[i][0][0] - 1;
-            opponentsColors[number] = data[i][0][1];
-            data[i].splice(0, 1);
-            opponentsCellsLocation[number].push(data);
-            console.log(opponentsColor[number]);
-            console.log(opponentsCellsLocation[number]);
+        dataKeys = Object.keys(data);
+        for(i in dataKeys) {
+            minorDataKeys = Object.keys(data[i]);
+            for(j in minorDataKeys) {
+                opponentsCellsLocation[i][j].push(data[i][j][0]);
+                opponentsCellsLocation[i][j].push(data[i][j][1]);
+            }
         }
     }
-    
-    //data = JSON.parse(event.data);
-    //if(data.color) {
-    //    myColor = data.color;
-    //    playerNumber = data.playerCount;
-    //    //console.log(myColor);
-    //} else if(data.cellLocation) {
-    //    playerCount = data.playerCount;
-    //    opponentsCellsLocation = data.cellLocation;
-    //}
-    //let dataReceived = event.data;
-    //if(isItColor == true) {
-    //    myColor = dataReceived;
-    //    isItColor = false;
-    //    //console.log(dataReceived);
-    //}
-
-    //if(dataReceived == "color") {
-    //    isItColor = true;
-    //}
-
 }
