@@ -15,6 +15,7 @@ dataArray = []
 async def data(websocket, path):
     global playerCount
     global playerColors
+    global dataArray
 
     playerCount += 1
     playerColor = f'{{"color": "{playerColors[playerCount-1]}", "playerCount": "{playerCount}"}}'
@@ -37,6 +38,7 @@ async def data(websocket, path):
         addToArray(data)
 
 def addToArray(data):
+    global dataArray
     dataArray.append(data)
 
 start_server = websockets.serve(data, "192.168.1.18", 8000)

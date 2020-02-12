@@ -693,12 +693,15 @@ function receiveData(event) {
             playerNumber = data.playerCount;
             //console.log(myColor);
         }
-    }
-    for(var i = 0; i < data.length; i++) {
-        let number = data[i][0][0] - 1;
-        opponentsColors[number] = data[i][0][1];
-        data[i].splice(0, 1);
-        opponentsCellsLocation[number].push(data);
+    } else {
+        for(var i = 0; i < data.length; i++) {
+            let number = data[i][0][0] - 1;
+            opponentsColors[number] = data[i][0][1];
+            data[i].splice(0, 1);
+            opponentsCellsLocation[number].push(data);
+            console.log(opponentsColor[number]);
+            console.log(opponentsCellsLocation[number]);
+        }
     }
     
     //data = JSON.parse(event.data);
