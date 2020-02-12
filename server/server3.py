@@ -10,17 +10,16 @@ import json
 playerCount = 0
 count = 0
 playerColors = ["green", "red", "yellow", "blue", "purple", "orange"]
-dataArray
+dataArray = []
 
-async def hello(websocket, path):
+async def data(websocket, path):
     global playerCount
     global playerColors
 
-    playerColor = f'{{"color": "{playerColors[playerCount]}", 
-                        "playerCount": "{playerCount}"}}'
+    playerCount += 1
+    playerColor = f'{{"color": "{playerColors[playerCount-1]}", "playerCount": "{playerCount}"}}'
 
     await websocket.send(playerColor)
-    playerCount += 1
 
     while True:
         data = await websocket.recv()
@@ -37,9 +36,8 @@ async def hello(websocket, path):
 
         addToArray(data)
 
-def addToArray(data) {
-    dataArray.push(data)
-}
+def addToArray(data):
+    dataArray.append(data)
 
 start_server = websockets.serve(data, "192.168.1.18", 8000)
 

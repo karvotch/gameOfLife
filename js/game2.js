@@ -686,6 +686,14 @@ function receiveData(event) {
             // Text received from a WebSocket connection is in UTF-8 format.
     console.log(event.data);
     data = event.data;
+    if(typeof(data) === 'string') {
+        data = JSON.parse(event.data);
+        if(data.color) {
+            myColor = data.color;
+            playerNumber = data.playerCount;
+            //console.log(myColor);
+        }
+    }
     for(var i = 0; i < data.length; i++) {
         let number = data[i][0][0] - 1;
         opponentsColors[number] = data[i][0][1];
