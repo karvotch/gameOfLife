@@ -74,7 +74,7 @@ playerCount = 0;
 myColor = "";
     // Same thing as myColor except for opponents colors.
 //opponentsColors = new Array(6);
-opponentsColors = ["green", "red", "yellow", "blue", "purple", "orange"];
+opponentsColors = ["lime", "red", "yellow", "blue", "purple", "orange"];
 
     // This boolean is used when pausing the game logic to place cells.
 pauseGame = false;
@@ -257,7 +257,7 @@ function game() {
     }
 
         // Select a color for the clicked cells.
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "green";
         // Draw all clicked cells onto the sandbox.
     for(var i = 0; i < clickedCellsLocation.length; i++) {
         ctx.fillRect((clickedCellsLocation[i][0] * cellSize + cellBorder) - gameViewOriginX, (clickedCellsLocation[i][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);

@@ -9,7 +9,7 @@ import json
 
 playerCount = 0
 count = 0
-playerColors = ["green", "red", "yellow", "blue", "purple", "orange"]
+playerColors = ["lime", "red", "yellow", "blue", "purple", "orange"]
 dataJSON = {}
 
 async def server(websocket, path):
