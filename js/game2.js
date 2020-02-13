@@ -116,7 +116,6 @@ for(var i = 0; i < sandboxWidth; i++) {
         blockStatus[i][j] = false;
     }
 }
-console.log(blockStatus.length);
     // An array of all blocks in the sanbox (400*400)
         // A second array for all blocks is necessary for 
             // game logic to separate old cells from new ones when counting surrounding cells.
@@ -271,7 +270,7 @@ function game() {
 
         for(var i = 0; i < opponentsCellsLocation.length; i++) {
             if(opponentsCellsLocation[i] && i != playerNumber) {
-                ctx.fillStyle = opponentsColors;
+                ctx.fillStyle = opponentsColors[i];
                 for(var j = 0; j < opponentsCellsLocation[i].length; j++) {
                     ctx.fillRect((opponentsCellsLocation[i][j][0] * cellSize + cellBorder) - gameViewOriginX, (opponentsCellsLocation[i][j][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
                 }
