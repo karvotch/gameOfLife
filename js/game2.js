@@ -104,9 +104,9 @@ cellsLocation = [];
     // The location of all clicked blocks in the current game logic loop to fill them with cells.
 clickedCellsLocation = [];
     // The location of all cells for each opponent.
-opponentsCellsLocation = new Array(6);
-for(var i = 0; i < opponentsCellsLocation.length; i++) {
-    opponentsCellsLocation[i] = new Array();
+opponentsCellsLocation = [];
+for(var i = 0; i < 6; i++) {
+    opponentsCellsLocation.push(new Array());
 }
     // An array of all blocks in the sandbox (400*400).
 blockStatus = [];
@@ -116,6 +116,7 @@ for(var i = 0; i < sandboxWidth; i++) {
         blockStatus[i][j] = false;
     }
 }
+console.log(blockStatus.length);
     // An array of all blocks in the sanbox (400*400)
         // A second array for all blocks is necessary for 
             // game logic to separate old cells from new ones when counting surrounding cells.
@@ -268,12 +269,15 @@ function game() {
     //    for(var j = 0; j < opponentsCellsLocation.cellLocation[i].cells
     //}
 
-    for(var i = 0; i < opponentsCellsLocation.length; i++) {
-        ctx.fillStyle = opponentsColors;
-        for(var j = 1; j < opponentsCellsLocation[i].length; j++) {
-            ctx.fillRect((opponentsCellsLocation[i][j][0] * cellSize + cellBorder) - gameViewOriginX, (opponentsCellsLocation[i][j][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
+        for(var i = 0; i < opponentsCellsLocation.length; i++) {
+            if(opponentsCellsLocation[i] && i != playerNumber) {
+                ctx.fillStyle = opponentsColors;
+                for(var j = 0; j < opponentsCellsLocation[i].length; j++) {
+                    ctx.fillRect((opponentsCellsLocation[i][j][0] * cellSize + cellBorder) - gameViewOriginX, (opponentsCellsLocation[i][j][1] * cellSize + cellBorder) - gameViewOriginY, cellSize - cellBorder, cellSize - cellBorder);
+                }
+            }
         }
-    }
+    //}
 
         // Loop the same function we are in.
     window.requestAnimationFrame(game);
@@ -693,15 +697,13 @@ function receiveData(event) {
     if(data.color) {
         myColor = data.color;
         playerNumber = data.playerID;
-        //console.log(myColor);
     } else {
-        dataKeys = Object.keys(data);
-        for(i in dataKeys) {
-            minorDataKeys = Object.keys(data[i]);
-            for(j in minorDataKeys) {
-                opponentsCellsLocation[i][j].push(data[i][j][0]);
-                opponentsCellsLocation[i][j].push(data[i][j][1]);
+        for(i in data) {
+            for(j in data[i]) {
+                opponentsCellsLocation[Number(i)].push([data[i][j][0], data[i][j][1]]);
+                console.log(i + j);
             }
         }
+        console.log(opponentsCellsLocation);
     }
 }

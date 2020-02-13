@@ -16,8 +16,8 @@ async def server(websocket, path):
     global playerCount
     global playerColors
 
+    playerColor = f'{{"color": "{playerColors[playerCount]}", "playerID": "{playerCount}"}}'
     playerCount += 1
-    playerColor = f'{{"color": "{playerColors[playerCount-1]}", "playerID": "{playerCount}"}}'
 
     await websocket.send(playerColor)
 
