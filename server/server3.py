@@ -24,26 +24,25 @@ async def server(websocket, path):
     while True:
         global dataArray
 
-        data = await websocket.recv()
-        #print(data)
-        data = json.loads(data)
+        #data = await websocket.recv()
+        data = websocket.recv()
 
-        #print(data)
-        #print(type(data))
-        #print(len(data))
+        print(type(data))
+        
+
 
         #json.dumps(dataJSON, separators=(',', ':'))
 
         if(len(dataJSON) > 0):
             await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
 
-        addToJSON(data)
+        if(type(data) == 'str'):
+            data = json.loads(data)
+            addToJSON(data)
 
 def addToJSON(data):
     global dataJSON
     if(len(data) > 1):
-        #print(data['0'])
-        #print(data['1'])
         dataJSON[data['0']] = data['1']
         print(dataJSON)
         print(len(dataJSON))
