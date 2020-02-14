@@ -12,8 +12,6 @@ count = 0
 playerColors = ["lime", "red", "yellow", "blue", "purple", "orange"]
 dataJSON = {}
 
-#isReceivedData = False
-
 async def server(websocket, path):
     global playerCount
     global playerColors
@@ -26,44 +24,28 @@ async def server(websocket, path):
 
     while True:
         global dataArray
-        global isReceiveData
 
         #print(type(websocket.recv()))
         #data = await websocket.recv()
         #data = websocket.recv()
-        #receiveData = asyncio.create_task(websocket.recv())
-        #data = await receiveData
-        receiveData = asyncio.create_task(receivingData(websocket))
-        #data = await receiveData
-        await receiveData
-        sendData = asyncio.create_task(sendingData(websocket))
-        await sendData
+        receiveData = asyncio.create_task(websocket.recv())
+        data = await receiveData
 
-        #if(len(dataJSON) > 0):
-        #    await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
-
-        #if(type(data) == type(" ")):
-        #    data = json.loads(data)
-        #    addToJSON(data)
+        print(type(data))
+        print(type(" "))
+        print(data)
+        #break
+        
 
 
-async def receivingData(websocket):
-    #global isReceiveData
-    data = await websocket.recv()
-    #isReceiveData = True
-    data = json.loads(data)
-    addToJSON(data)
-    #return data
+        #json.dumps(dataJSON, separators=(',', ':'))
 
-
-async def sendingData(websocket):
-    global isReceiveData
-    global dataJSON
-    #while not isReceiveData:
-    while True:
         if(len(dataJSON) > 0):
             await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
 
+        if(type(data) == "<class 'str'>"):
+            data = json.loads(data)
+            addToJSON(data)
 
 def addToJSON(data):
     global dataJSON
