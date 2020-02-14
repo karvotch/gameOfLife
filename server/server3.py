@@ -25,9 +25,11 @@ async def server(websocket, path):
         global dataArray
 
         #data = await websocket.recv()
+        print(type(websocket.recv()))
         data = websocket.recv()
 
         print(type(data))
+        break
         
 
 
