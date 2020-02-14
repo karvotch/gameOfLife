@@ -22,10 +22,9 @@ async def server(websocket, path):
     playerCount += 1
 
     await websocket.send(playerColor)
-    await websocket.send(playerColor)
 
     while True:
-        global dataArray
+        global dataJSON
         global isReceiveData
 
         #print(type(websocket.recv()))
@@ -48,21 +47,31 @@ async def server(websocket, path):
 
 
 async def receivingData(websocket):
+    global playerCount
+    global count
     #global isReceiveData
     data = await websocket.recv()
     #isReceiveData = True
     data = json.loads(data)
     addToJSON(data)
+    #count += 1
     #return data
 
 
 async def sendingData(websocket):
     global isReceiveData
     global dataJSON
+    global count
+    global playerCount
     #while not isReceiveData:
     while True:
         if(len(dataJSON) > 0):
+            if(count <= 0):
+                count = playerCount
             await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
+            count -= 1
+            if(count <= 0):
+                clearSendData()
 
 
 def addToJSON(data):
