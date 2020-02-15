@@ -690,7 +690,7 @@ function sendData(event) {
 function receiveData(event) {
         // Receiving a message from the server.
             // Text received from a WebSocket connection is in UTF-8 format.
-    console.log(event.data);
+    //console.log(event.data);
     data = event.data;
     data = JSON.parse(data);
     if(data.color) {
@@ -700,9 +700,9 @@ function receiveData(event) {
         for(i in data) {
             for(j in data[i]) {
                 opponentsCellsLocation[Number(i)].push([data[i][j][0], data[i][j][1]]);
-                console.log(i + j);
+                //console.log(i + j);
             }
         }
-        console.log(opponentsCellsLocation);
+        //console.log(opponentsCellsLocation);
     }
 }

@@ -12,7 +12,7 @@ count = 0
 playerColors = ["lime", "red", "yellow", "blue", "purple", "orange"]
 dataJSON = {}
 
-#isReceivedData = False
+isReceivedData = False
 
 async def server(websocket, path):
     global playerCount
@@ -26,6 +26,7 @@ async def server(websocket, path):
     while True:
         global dataJSON
         global isReceiveData
+        isReceiveData = False
 
         #print(type(websocket.recv()))
         #data = await websocket.recv()
@@ -33,10 +34,14 @@ async def server(websocket, path):
         #receiveData = asyncio.create_task(websocket.recv())
         #data = await receiveData
         receiveData = asyncio.create_task(receivingData(websocket))
-        #data = await receiveData
-        await receiveData
         sendData = asyncio.create_task(sendingData(websocket))
+        #data = await receiveData
+        print(f"FIRST: {isReceiveData}")
+        await receiveData
+        print(f"THIRD: {isReceiveData}")
         await sendData
+        print(f"SIXTH: {isReceiveData}")
+        receiveData.cancel
 
         #if(len(dataJSON) > 0):
         #    await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
@@ -49,9 +54,10 @@ async def server(websocket, path):
 async def receivingData(websocket):
     global playerCount
     global count
-    #global isReceiveData
+    global isReceiveData
+    print(f"SECOND: {isReceiveData}")
     data = await websocket.recv()
-    #isReceiveData = True
+    isReceiveData = True
     data = json.loads(data)
     addToJSON(data)
     #count += 1
@@ -63,15 +69,23 @@ async def sendingData(websocket):
     global dataJSON
     global count
     global playerCount
-    #while not isReceiveData:
-    while True:
+    print(f"FOURTH: {isReceiveData}")
+    while not isReceiveData:
         if(len(dataJSON) > 0):
             if(count <= 0):
                 count = playerCount
             await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
             count -= 1
             if(count <= 0):
-                clearSendData()
+                #clearSendData()
+                dataJSON = {}
+        else:
+            break
+    
+    isReceiveData = False
+    print(f"FIFTH: {isReceiveData}")
+
+    return 0
 
 
 def addToJSON(data):
