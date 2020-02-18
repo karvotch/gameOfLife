@@ -12,7 +12,7 @@ count = 0
 playerColors = ["lime", "red", "yellow", "blue", "purple", "orange"]
 dataJSON = {}
 
-isReceivedData = False
+isReceiveData = False
 
 async def server(websocket, path):
     global playerCount
@@ -26,7 +26,7 @@ async def server(websocket, path):
     while True:
         global dataJSON
         global isReceiveData
-        isReceiveData = False
+        #isReceiveData = False
 
         #print(type(websocket.recv()))
         #data = await websocket.recv()
@@ -34,14 +34,14 @@ async def server(websocket, path):
         #receiveData = asyncio.create_task(websocket.recv())
         #data = await receiveData
         receiveData = asyncio.create_task(receivingData(websocket))
-        sendData = asyncio.create_task(sendingData(websocket))
+        sendData = asyncio.create_task(sendingData(websocket, receiveData))
         #data = await receiveData
         print(f"FIRST: {isReceiveData}")
         await receiveData
-        print(f"THIRD: {isReceiveData}")
+        print(f"FOURTH: {isReceiveData}")
         await sendData
-        print(f"SIXTH: {isReceiveData}")
-        receiveData.cancel
+        print(f"EIGHTH: {isReceiveData}")
+        print()
 
         #if(len(dataJSON) > 0):
         #    await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
@@ -60,20 +60,23 @@ async def receivingData(websocket):
     isReceiveData = True
     data = json.loads(data)
     addToJSON(data)
+    print(f"THIRD: {isReceiveData}")
     #count += 1
     #return data
 
 
-async def sendingData(websocket):
+async def sendingData(websocket, receiveData):
     global isReceiveData
     global dataJSON
     global count
     global playerCount
-    print(f"FOURTH: {isReceiveData}")
+    print(f"FIFTH: {isReceiveData}")
     while not isReceiveData:
+        print(f"SIXTH: {isReceiveData}")
         if(len(dataJSON) > 0):
             if(count <= 0):
                 count = playerCount
+            print(f"    COUNT: {count}")
             await websocket.send(json.dumps(dataJSON, separators=(',', ':')))
             count -= 1
             if(count <= 0):
@@ -83,7 +86,8 @@ async def sendingData(websocket):
             break
     
     isReceiveData = False
-    print(f"FIFTH: {isReceiveData}")
+    print(f"SEVENTH: {isReceiveData}")
+    receiveData.cancel()
 
     return 0
 

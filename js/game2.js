@@ -696,6 +696,7 @@ function receiveData(event) {
     if(data.color) {
         myColor = data.color;
         playerNumber = data.playerID;
+        console.log(playerNumber);
     } else {
         for(i in data) {
             for(j in data[i]) {
@@ -703,6 +704,6 @@ function receiveData(event) {
                 //console.log(i + j);
             }
         }
-        //console.log(opponentsCellsLocation);
+        console.log(opponentsCellsLocation);
     }
 }
