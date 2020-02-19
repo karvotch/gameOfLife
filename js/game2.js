@@ -13,6 +13,10 @@ window.onload = function() {
     document.addEventListener("mouseup", mouseUp, false);
     document.addEventListener("mousemove", mouseDrag);
     document.addEventListener("click", mouseClick, false);
+    //testing2(testArray1);
+    //testing2(testArray2[2]);
+    //testing(testArray1);
+    //testing(testArray2[2]);
         // Creating a web socket.
         // The gameSocket.readyState = CONNECTING at first and becomes
             // OPEN once the connection is ready.
@@ -25,6 +29,9 @@ window.onload = function() {
     //gameSocket.close();
     game();
 };
+
+//testArray1 = [[22, 32], [44, 64], [88, 128], [176, 256]];
+//testArray2 = [[[256, 176], [128, 88], [64, 44], [32, 22]], [[1, 2], [2, 4], [4, 8], [8, 12]], [[432, 123], [76, 34], [76, 21], [87, 98]]];
 
 canv = document.getElementById("mainCanvas");
 
@@ -113,7 +120,7 @@ blockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
     blockStatus.push(new Array(sandboxHeight));
     for(var j = 0; j < sandboxHeight; j++) {
-        blockStatus[i][j] = false;
+        blockStatus[i][j] = 0;
     }
 }
     // An array of all blocks in the sanbox (400*400)
@@ -123,7 +130,7 @@ nextBlockStatus = [];
 for(var i = 0; i < sandboxWidth; i++) {
     nextBlockStatus.push(new Array(sandboxHeight));
     for(var j = 0; j < sandboxHeight; j++) {
-        nextBlockStatus[i][j] = false;
+        nextBlockStatus[i][j] = 0;
     }
 }
 
@@ -168,7 +175,12 @@ function game() {
         //cpyNextToCurrBlockStatusArray();
         clearBlockStatusArray();
         cpyCellToBlockStatusArray();
-        setNextBlockStatus();
+        setNextBlockStatus(cellsLocation);
+        for(var i = 0; i < 6; i++) {
+            if(i != playerNumber) {
+                setNextBlockStatus(opponentsCellsLocation[i]);
+            }
+        }
     }
 
 
@@ -283,8 +295,8 @@ function game() {
 }
 
     // Game logic for all cells.
-function setNextBlockStatus() {
-    let arrayLength = cellsLocation.length;
+function setNextBlockStatus(cellsLocations) {
+    let arrayLength = cellsLocations.length;
     //console.log(arrayLength);
 
         // Loop will count all cells' surrounding cells and check empty blocks nearby.
@@ -292,17 +304,17 @@ function setNextBlockStatus() {
         surrCellCount = 0;
 
 
-        let xLessOne = cellsLocation[i][0] - 1;
-        let xPlusOne = cellsLocation[i][0] + 1;
-        let yLessOne = cellsLocation[i][1] - 1;
-        let yPlusOne = cellsLocation[i][1] + 1;
+        let xLessOne = cellsLocations[i][0] - 1;
+        let xPlusOne = cellsLocations[i][0] + 1;
+        let yLessOne = cellsLocations[i][1] - 1;
+        let yPlusOne = cellsLocations[i][1] + 1;
         let topL = [xLessOne, yLessOne];
-        let topt = [cellsLocation[i][0], yLessOne];
+        let topt = [cellsLocations[i][0], yLessOne];
         let topR = [xPlusOne, yLessOne];
-        let left = [xLessOne, cellsLocation[i][1]];
-        let right = [xPlusOne, cellsLocation[i][1]];
+        let left = [xLessOne, cellsLocations[i][1]];
+        let right = [xPlusOne, cellsLocations[i][1]];
         let botL = [xLessOne, yPlusOne];
-        let bot = [cellsLocation[i][0], yPlusOne];
+        let bot = [cellsLocations[i][0], yPlusOne];
         let botR = [xPlusOne, yPlusOne];
 
 
@@ -342,8 +354,8 @@ function setNextBlockStatus() {
 
 
         if(surrCellCount == 0 || surrCellCount == 1 || surrCellCount >= 4) {
-            //blockStatus[cellsLocation[i][0]][cellsLocation[i][1]] = false;
-            cellsLocation.splice(i, 1);
+            //blockStatus[cellsLocations[i][0]][cellsLocations[i][1]] = 0;
+            cellsLocations.splice(i, 1);
             arrayLength -= 1;
             i -= 1;
         }
@@ -352,8 +364,8 @@ function setNextBlockStatus() {
 
     // Function will check if the block has a cell and return a 1 or 0 based on that info.
 function checkSurrBlock(xa, ya) {
-    if(blockStatus[xa][ya] == false) {
-        if(nextBlockStatus[xa][ya] == false) {
+    if(blockStatus[xa][ya] == 0) {
+        if(nextBlockStatus[xa][ya] == 0) {
             checkEmptyCellStatus(xa, ya);
         }
         return 0;
@@ -378,49 +390,49 @@ function checkEmptyCellStatus(xa, ya) {
     
 
     if(topL[0] >= 0 && topL[1] >= 0) {
-        if(blockStatus[topL[0]][topL[1]] == true) {
+        if(blockStatus[topL[0]][topL[1]] == 1) {
             surrCellCount2 +=1
         }
     }
 
     if(topt[1] >= 0) {
-        if(blockStatus[topt[0]][topt[1]] ==true) {
+        if(blockStatus[topt[0]][topt[1]] == 1) {
             surrCellCount2 +=1
         }
     }
 
     if(topR[0] < sandboxWidth && topR[1] >= 0) {
-        if(blockStatus[topR[0]][topR[1]] ==true) {
+        if(blockStatus[topR[0]][topR[1]] == 1) {
             surrCellCount2 +=1
         }
     }
 
     if(left[0] >= 0) {
-        if(blockStatus[left[0]][left[1]] ==true) {
+        if(blockStatus[left[0]][left[1]] == 1) {
             surrCellCount2 +=1
         }
     }
 
     if(right[0] < sandboxWidth) {
-        if(blockStatus[right[0]][right[1]] ==true) {
+        if(blockStatus[right[0]][right[1]] == 1) {
             surrCellCount2 +=1
         }
     }
 
     if(botL[0] >= 0 && botL[1] < sandboxHeight) {
-        if(blockStatus[botL[0]][botL[1]] ==true) {
+        if(blockStatus[botL[0]][botL[1]] == 1) {
             surrCellCount2 +=1
         }
     }
 
     if(bot[1] < sandboxHeight) {
-        if(blockStatus[bot[0]][bot[1]] ==true) {
+        if(blockStatus[bot[0]][bot[1]] == 1) {
             surrCellCount2 +=1
         }
     }
 
     if(botR[0] < sandboxWidth && botR[1] < sandboxHeight) {
-        if(blockStatus[botR[0]][botR[1]] ==true) {
+        if(blockStatus[botR[0]][botR[1]] == 1) {
             surrCellCount2 +=1
         }
     }
@@ -428,7 +440,7 @@ function checkEmptyCellStatus(xa, ya) {
 
     if(surrCellCount2 == 3) {
         cellsLocation.push([xa, ya]);
-        nextBlockStatus[xa][ya] = true;
+        nextBlockStatus[xa][ya] = 1;
     }
 }
 
@@ -436,8 +448,8 @@ function checkEmptyCellStatus(xa, ya) {
 function clearBlockStatusArray() {
     for (var i = 0; i < sandboxHeight; i++) {
         for(var j = 0; j < sandboxHeight; j++) {
-            blockStatus[i][j] = false;
-            nextBlockStatus[i][j] = false;
+            blockStatus[i][j] = 0;
+            nextBlockStatus[i][j] = 0;
         }
     }
 }
@@ -456,7 +468,7 @@ function cpyCellToBlockStatusArray() {
     let arrayLength = cellsLocation.length;
     for (var i = 0; i < arrayLength; i++) {
         //console.log(i + " " + cellsLocation);
-        blockStatus[cellsLocation[i][0]][cellsLocation[i][1]] = true;
+        blockStatus[cellsLocation[i][0]][cellsLocation[i][1]] = 1;
     }
 }
 
@@ -627,10 +639,10 @@ function mouseClick(e) {
         var xCellPos = Math.floor((xPosition + gameViewOriginX) / cellSize);
         var yCellPos = Math.floor((yPosition + gameViewOriginY) / cellSize);
         
-        if(blockStatus[xCellPos][yCellPos] == true) {
-            //blockStatus[xCellPos][yCellPos] = false;
+        if(blockStatus[xCellPos][yCellPos] == 1) {
+            //blockStatus[xCellPos][yCellPos] = 0;
         } else {
-            //blockStatus[xCellPos][yCellPos] = true;
+            //blockStatus[xCellPos][yCellPos] = 1;
             //cellsLocation.push([xCellPos, yCellPos]);
             clickedCellsLocation.push([xCellPos, yCellPos]);
         }
@@ -706,4 +718,14 @@ function receiveData(event) {
         }
         console.log(opponentsCellsLocation);
     }
+}
+
+function testing(someArray) {
+    console.log(someArray[0][1]);
+    console.log(someArray[3][0]);
+}
+
+function testing2(someArray) {
+    someArray[0][1] = 1;
+    someArray[3][0] = 9;
 }
