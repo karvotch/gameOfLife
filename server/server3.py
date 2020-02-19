@@ -72,6 +72,7 @@ async def sendingData(websocket, receiveData):
     global playerCount
     print(f"FIFTH: {isReceiveData}")
     while not isReceiveData:
+        await asyncio.sleep(.3)
         print(f"SIXTH: {isReceiveData}")
         if(len(dataJSON) > 0):
             if(count <= 0):
@@ -82,12 +83,9 @@ async def sendingData(websocket, receiveData):
             if(count <= 0):
                 #clearSendData()
                 dataJSON = {}
-        else:
-            break
     
     isReceiveData = False
     print(f"SEVENTH: {isReceiveData}")
-    receiveData.cancel()
 
     return 0
 
