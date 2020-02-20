@@ -17,10 +17,12 @@ window.onload = function() {
     //testing2(testArray2[2]);
     //testing(testArray1);
     //testing(testArray2[2]);
+    //console.log(testArray1);
+    //console.log(testArray2);
         // Creating a web socket.
         // The gameSocket.readyState = CONNECTING at first and becomes
             // OPEN once the connection is ready.
-    gameSocket = new WebSocket('ws://192.168.1.18:8000');
+    gameSocket = new WebSocket('ws://192.168.1.16:8000');
         // Closing the gameSocket connection.
             // It may be a good idea to check the gameSocket.bufferedAmount attribute before closing the connection.
                 // IDEA: When wanting to close the connection set boolean 'closing' to true.
@@ -180,7 +182,7 @@ function game() {
         cpyCellToBlockStatusArray(cellsLocation, playerNumber+1);
         //console.log(cellsLocation);
         for(var i = 0; i < 6; i++) {
-            if(i != playerNumber) {
+            if(opponentsCellsLocation[i] && i != playerNumber) {
                 cpyCellToBlockStatusArray(opponentsCellsLocation[i], i+1);
             }
         }
@@ -188,7 +190,7 @@ function game() {
         setNextBlockStatus(cellsLocation, playerNumber+1);
         //console.log(cellsLocation);
         for(var i = 0; i < 6; i++) {
-            if(i != playerNumber) {
+            if(opponentsCellsLocation[i] && i != playerNumber) {
                 setNextBlockStatus(opponentsCellsLocation[i], i+1);
             }
         }
@@ -318,7 +320,7 @@ function setNextBlockStatus(cellsLocations, playerID) {
     for (var i = 0; i < arrayLength; i++) {
         let surrCellCount = 0;
         let oppSurrCellCount = 0;
-
+        let surrResult = 0;
 
         let xLessOne = cellsLocations[i][0] - 1;
         let xPlusOne = cellsLocations[i][0] + 1;
@@ -335,64 +337,72 @@ function setNextBlockStatus(cellsLocations, playerID) {
 
 
         if(topL[0] >= 0 && topL[1] >= 0) {
-            if(checkSurrBlock(topL[0], topL[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(topL[0], topL[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
         }
 
         if(topt[1] >= 0) {
-            if(checkSurrBlock(topt[0], topt[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(topt[0], topt[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
         }
 
         if(topR[0] < sandboxWidth && topR[1] >= 0) {
-            if(checkSurrBlock(topR[0], topR[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(topR[0], topR[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
         }
 
         if(left[0] >= 0) {
-            if(checkSurrBlock(left[0], left[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(left[0], left[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
         }
 
         if(right[0] < sandboxWidth) {
-            if(checkSurrBlock(right[0], right[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(right[0], right[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
         }
 
         if(botL[0] >= 0 && botL[1] < sandboxHeight) {
-            if(checkSurrBlock(botL[0], botL[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(botL[0], botL[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
         }
 
         if(bot[1] < sandboxHeight) {
-            if(checkSurrBlock(bot[0], bot[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(bot[0], bot[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
         }
 
         if(botR[0] < sandboxWidth && botR[1] < sandboxHeight) {
-            if(checkSurrBlock(botR[0], botR[1], cellsLocations, playerID) < 2) {
-                surrCellCount += 1;
+            surrResult = checkSurrBlock(botR[0], botR[1], cellsLocations, playerID);
+            if(surrResult < 2) {
+                surrCellCount += surrResult;
             } else {
                 oppSurrCellCount += 1;
             }
