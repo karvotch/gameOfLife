@@ -153,7 +153,7 @@ function game() {
             // This loop is adding the clickedCellsLocation array to the main cellsLocation array.
         for(var i = 0; i < clickedCellsLocation.length; i++) {
             cellsLocation.push(clickedCellsLocation[i]);
-            console.log(clickedCellsLocation.length);
+            //console.log(clickedCellsLocation.length);
         }
 
         //console.log(clickedCellsLocation);
@@ -768,7 +768,7 @@ function receiveData(event) {
     if(data.color) {
         myColor = data.color;
         playerNumber = data.playerID;
-        console.log(playerNumber);
+        //console.log(playerNumber);
     } else {
         for(i in data) {
             for(j in data[i]) {
